@@ -16,7 +16,7 @@ Due to privacy rules, I am not permitted to share sensitive family contact detai
 
 ## Required Inputs
 - ORDER_NUMBER — must be the order UUID / order id used by the API
-- SENDER_NAME — for the reply greeting if available
+- SENDER_NAME — for the reply greeting. Extract this from the sender metadata provided in the message (look for `name` in the `Sender (untrusted metadata)` JSON block).
 
 If the user does not provide an order number, ask only for the order number.
 

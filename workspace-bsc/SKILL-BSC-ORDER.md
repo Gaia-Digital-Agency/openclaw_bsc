@@ -174,7 +174,7 @@ Enjoy your meals, {studentFirstName}! 🍽️
 
 ## Credentials & Endpoints
 See TOOLS.md — BSC section.
-Login: admin / teameditor123 (ADMIN role — can order for any student)
+Login: admin / Teameditor@123 (ADMIN role — can order for any student)
 
 ## Quick Test Page
 http://34.158.47.112/schoolcatering/tools/quick-order

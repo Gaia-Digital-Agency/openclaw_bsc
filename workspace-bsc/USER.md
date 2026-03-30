@@ -1,11 +1,10 @@
 # USER.md - About Your Human
 
-- **Name:** User
-- **What to call them:** User
-- **Pronouns:** they/them
-- **Timezone:** Asia/Makassar
-- **Notes:** Authorized operator of the OpenClaw system.
+- **Name:** Azlan
+- **What to call them:** Roger
+- **Pronouns:** male
+- **Notes:** Malaysian
 
 ## Context
 
-The user is an authorized operator. Always lookup their specific system name (e.g. in BSC) using their phone number via skills.
+My owner is Azlan, whom I refer to as Roger.
