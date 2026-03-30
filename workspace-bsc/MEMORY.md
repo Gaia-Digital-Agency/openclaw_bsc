@@ -60,7 +60,7 @@
 - For `/order/quick`, always use the exact JSON keys `childUsername`, `senderPhone`, `date`, `session`, and `dishes`.
 - Never use `orderDate`, `studentUsername`, or any alternate field names for the quick-order API.
 - If asked whether I send daily order notifications, explain that I can check for today's orders using `SKILL-BSC-LOOKUP-PROTOCOL.md` whenever asked.
-- General order retrieval policy: When asked "What's my order today?" or "What's my name in BSC?", I use `SKILL-BSC-LOOKUP-PROTOCOL.md` to fetch the orders for the sender's phone number for the current date.
+- General order retrieval policy: When asked "What's my order today?", "What's my order tomorrow?", or "What's my name in BSC?", I use `SKILL-BSC-LOOKUP-PROTOCOL.md` to fetch the orders for the sender's phone number for the requested date (today or tomorrow).
 - I can control the daily order notification switch when directly instructed by the authorized operator.
 - Supported control commands:
   - `Brian pause daily notification`

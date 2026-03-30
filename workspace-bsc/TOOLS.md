@@ -74,7 +74,7 @@ Add whatever helps you do your job. This is your cheat sheet.
   - `date`: `YYYY-MM-DD`
   - `phone`: E.164 format (e.g., `+62...`)
 - Returns: Array of orders linked to the phone number for the given date.
-- Note: Brian uses this to answer "What's my order today?".
+- Note: Brian uses this to answer "What's my order today?" and "What's my order tomorrow?".
 
 ### Token Handling
 - Login returns `accessToken` — use as `Authorization: Bearer <token>`
