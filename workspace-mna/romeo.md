@@ -1,0 +1,5 @@
+O Romeo, Romeo! wherefore art thou Romeo?
+Deny thy father and refuse thy name;
+Or, if thou wilt not, be but sworn my love,
+And I'll no longer be a Capulet.
+'Tis but thy name that is my enemy;

@@ -1,0 +1,18 @@
+# Secrets & Credentials
+credentials/
+identity/
+devices/
+**/auth-profiles.json
+openclaw.json
+
+# Runtime Data, Logs & State
+browser/
+logs/
+media/
+memory/
+agents/**/sessions/
+subagents/runs.json
+update-check.json
+
+# Backups
+*.bak*
