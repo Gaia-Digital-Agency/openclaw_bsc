@@ -62,8 +62,8 @@ Use these defaults when poster extraction and safe inference are exhausted:
 3. Extract or infer the ticket price and convert it into `price_thousands`.
 4. Infer only safe values.
 5. Apply approved defaults when extraction is exhausted.
-6. If the raw image file is available, upload it first. **CRITICAL: You MUST use the `run_shell_command` tool with `curl` for the upload.**
-   `curl -X POST 'https://zenbali.site/api/agent/uploads/event-image' -H 'X-Agent-Token: 8c5e16225ea2dd0736766878529408f95ed6720337f154cb51e1228d3d1f006c' -F "image=@/path/to/image.jpg"`
+6. If the raw image file is available, upload it first:
+   `POST https://zenbali.site/api/agent/uploads/event-image`
 7. Read `data.image_url` from the upload response and map it to `e267` / `image_url`.
 8. Send the full JSON payload to:
    `POST https://zenbali.site/api/agent/events`
