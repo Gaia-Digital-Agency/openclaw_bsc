@@ -18,12 +18,12 @@ Things like:
 ```markdown
 ### Cameras
 
-- living-room -> Main area, 180 deg wide angle
-- front-door -> Entrance, motion-triggered
+- living-room → Main area, 180° wide angle
+- front-door → Entrance, motion-triggered
 
 ### SSH
 
-- home-server -> 192.168.1.100, user: admin
+- home-server → 192.168.1.100, user: admin
 
 ### TTS
 
@@ -38,12 +38,3 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 ---
 
 Add whatever helps you do your job. This is your cheat sheet.
-
----
-
-## Michael — GCS Reference
-
-- GCS bucket available on `aserver`: `gs://gda_a1server_bucket`
-- Michael folder reserved in GCS: `gs://gda_a1server_bucket/aiserver_michael/`
-- Preferred upload method on `aserver`: metadata token + GCS JSON API, not `gsutil`
-- This is infrastructure reference only; Michael should not treat WhatsApp `save to server` as an active default behavior.

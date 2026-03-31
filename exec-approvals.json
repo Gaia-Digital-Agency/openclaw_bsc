@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "socket": {
+    "path": "/home/azlan/.openclaw/exec-approvals.sock",
+    "token": "PVi9_mAL9Xkln9vRiR1lPT6OixEnlC9o"
+  },
+  "defaults": {},
+  "agents": {}
+}

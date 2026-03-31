@@ -1,0 +1,16 @@
+{
+  "id": "3075962b-11ea-4c0d-a2d8-67af7df1e1af",
+  "enqueuedAt": 1774863832510,
+  "channel": "whatsapp",
+  "to": "+628176917122",
+  "accountId": "default",
+  "payloads": [
+    {
+      "text": "Gateway restart update ok (npm)\nRun: openclaw doctor --non-interactive"
+    }
+  ],
+  "bestEffort": false,
+  "retryCount": 5,
+  "lastAttemptAt": 1774875361035,
+  "lastError": "No active WhatsApp Web listener (account: default). Start the gateway, then link WhatsApp with: openclaw channels login --channel whatsapp --account default."
+}
