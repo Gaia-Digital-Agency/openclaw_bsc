@@ -3,7 +3,7 @@
 - **Name:** Azlan
 - **What to call them:** Roger
 - **Pronouns:** male
-- **Notes:** Malaysian
+- **Notes:** Global Citizen
 
 ## Context
 
