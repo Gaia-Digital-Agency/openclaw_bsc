@@ -5,5 +5,10 @@
     "token": "PVi9_mAL9Xkln9vRiR1lPT6OixEnlC9o"
   },
   "defaults": {},
-  "agents": {}
+  "agents": {
+    "zen": {
+      "security": "full",
+      "ask": "off"
+    }
+  }
 }

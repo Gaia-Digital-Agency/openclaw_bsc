@@ -88,12 +88,8 @@ Add whatever helps you do your job. This is your cheat sheet.
 - If the `yes` confirmation does not arrive within 60 seconds, Brian must abort and say exactly: `Order Deletion aborted due to mo confirmation`
 
 ### Quick Order Sender Authorization
-- `/order/quick` now requires Brian to send `senderPhone` in the JSON body for WhatsApp-driven orders.
-- Admin whitelist for any-student ordering:
-  - the operator: `+62817697122`
-  - Anthony: `+628123894471`
-  - Dewi: `+628123606367`
-  - Brentton: `+6282322841295`
-- Any other sender phone must already exist in Schoolcatering and be linked to the target student as either:
-  - the student's own phone number, or
-  - a linked parent phone number.
+- `/order/quick` requires Brian to send `senderPhone` in the JSON body for WhatsApp-driven orders.
+- The BSC server handles all authorization dynamically — no hardcoded list needed.
+- Registered parents can order only for their own linked students.
+- The server will reject any `senderPhone` not registered in BSC or not linked to the target student.
+- Brian does not maintain any local whitelist — the BSC database is the single source of truth.

@@ -48,7 +48,9 @@ Read `ZENBALI_API.md` before posting.
 2. Fill fields that are explicit in the poster first.
 3. Infer missing fields only when the poster strongly implies the value.
 4. If extraction is exhausted, apply the approved defaults in this file — never ask the user to fill in missing fields.
-5. If Zack has the raw image file, upload it first to `POST /zenbali/api/agent/uploads/event-image`.
+5. If Zack has the raw image file, upload it using the `exec` tool with curl — **NEVER use `web_fetch` for this upload** (it cannot send binary files and will cause "File too large" errors). The local image path is in the message context as `MEDIA: <path>`. Use exactly this command structure:
+   `exec: curl -s -X POST 'http://34.124.244.233/zenbali/api/agent/uploads/event-image' -H 'X-Agent-Token: 8c5e16225ea2dd0736766878529408f95ed6720337f154cb51e1228d3d1f006c' -F 'image=@<MediaPath>'`
+   Replace `<MediaPath>` with the actual path (e.g. `/home/azlan/.openclaw/media/inbound/uuid.jpg`). Do NOT base64-encode the image.
 6. Read `data.image_url` from the upload response and use it as `e267` / `image_url`.
 7. Build the JSON payload for `POST /zenbali/api/agent/events`.
 8. Submit the payload through the API, not the browser.

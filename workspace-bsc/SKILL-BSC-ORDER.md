@@ -147,9 +147,8 @@ Enjoy your meals, {studentFirstName}! 🍽️
 
 ## Sender Authorization Rule
 - Always send `senderPhone` in the `/order/quick` JSON body.
-- Whitelisted admin numbers may order for any student.
-- All other numbers must match the student phone number or a linked parent phone number stored in Schoolcatering.
-- If `senderPhone` is missing for an admin-driven order, the API will reject it.
+- The BSC server enforces all authorization — no local whitelist. Registered parents can order only for their own linked students; the server rejects unregistered or unlinked senders.
+- If `senderPhone` is missing, the API will reject it.
 
 ## Order Placement Confirmation Rule
 - Normal order placement does not require a confirmation turn.
