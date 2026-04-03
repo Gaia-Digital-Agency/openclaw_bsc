@@ -18,7 +18,7 @@ The site's Add buttons do not respond to browser automation. Always use the API 
 ### Step 0 — Parse the Message
 Extract:
 - STUDENT_USERNAME — verbatim (e.g. syrowatka_natasha)
-- SENDER_PHONE — sender WhatsApp number in digits/E.164 form. Extract this from the sender metadata provided in the message (look for `sender_id` or `e164` in the `Conversation info` JSON block). (e.g. +628176917122)
+- SENDER_PHONE — sender WhatsApp number in digits/E.164 form. Extract this from the sender metadata provided in the message (look for `sender_id` or `e164` in the `Conversation info` JSON block). (e.g. +6281138210188)
 - DATE — convert to YYYY-MM-DD (e.g. "2nd April" → "2026-04-02")
 - SESSION — uppercase (lunch → LUNCH, snack → SNACK, breakfast → BREAKFAST)
 - DISHES — array of dish names, split by comma or "+"
@@ -39,19 +39,47 @@ curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
 
 Extract accessToken. If empty or missing → reply "Login failed — server error" and stop.
 
-### Step 2 — Place Order
-Use this exact endpoint and exact payload keys only:
+### Step 1.5 — Resolve childUsername (if not provided by user)
+If the user did not provide a student username but you have SENDER_PHONE, look up the username:
+
+curl -s "http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SENDER_PHONE"
+
+This returns `{"ok":true,"found":true,"phone":"...","name":"...","username":"familyname_studentname","role":"CHILD"}`.
+Use the `username` field as `childUsername` for the order.
+
+If the lookup returns multiple results or a PARENT role, you may need to ask the user which child to order for.
+
+### Step 2 — Place Order (Attempt A: with both fields)
+Try with BOTH `childUsername` and `senderPhone`:
 
 curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN_HERE" \
   -d '{"childUsername":"STUDENT_USERNAME","senderPhone":"SENDER_PHONE","date":"YYYY-MM-DD","session":"SESSION","dishes":["Dish1","Dish2"]}'
 
-Required payload shape:
-- `childUsername` — string
-- `senderPhone` — string
+If Attempt A succeeds → go to Step 3.
+
+### Step 2 Fallback — Place Order (Attempt B: childUsername only)
+If Attempt A fails with a validation error about `senderPhone`, retry WITHOUT `senderPhone`:
+
+curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN_HERE" \
+  -d '{"childUsername":"STUDENT_USERNAME","date":"YYYY-MM-DD","session":"SESSION","dishes":["Dish1","Dish2"]}'
+
+### Step 2 Fallback — Place Order (Attempt C: senderPhone only)
+If Attempt B also fails, retry with `senderPhone` only (no `childUsername`):
+
+curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN_HERE" \
+  -d '{"senderPhone":"SENDER_PHONE","date":"YYYY-MM-DD","session":"SESSION","dishes":["Dish1","Dish2"]}'
+
+Required payload fields (at minimum one of):
+- `childUsername` — string (student username from lookup)
+- `senderPhone` — string (sender's phone number)
 - `date` — string in exact `YYYY-MM-DD`
-- `session` — string
+- `session` — string (BREAKFAST, LUNCH, or SNACK)
 - `dishes` — array of strings
 
 Never send these wrong keys to `/order/quick`:
@@ -61,7 +89,6 @@ Never send these wrong keys to `/order/quick`:
 
 If you receive HTTP 401 on Step 2: re-login ONCE (Step 1 again) then retry this step.
 If the API returns a validation error about `date`, re-check the date value, correct it to exact `YYYY-MM-DD`, and retry ONCE before replying with failure.
-If the API returns validation errors that indicate the wrong key names were used, rebuild the payload with the exact required keys above and retry ONCE.
 
 ### Step 3 — Reply
 See REPLY FORMAT section below.
@@ -146,9 +173,10 @@ Enjoy your meals, {studentFirstName}! 🍽️
 ---
 
 ## Sender Authorization Rule
-- Always send `senderPhone` in the `/order/quick` JSON body.
+- Try sending BOTH `childUsername` and `senderPhone` in the `/order/quick` JSON body.
+- If the API rejects one field, fall back to the other (see Step 2 Attempts A/B/C).
 - The BSC server enforces all authorization — no local whitelist. Registered parents can order only for their own linked students; the server rejects unregistered or unlinked senders.
-- If `senderPhone` is missing, the API will reject it.
+- Use the public lookup endpoint to resolve `senderPhone` → `childUsername` when the user doesn't provide a username.
 
 ## Order Placement Confirmation Rule
 - Normal order placement does not require a confirmation turn.

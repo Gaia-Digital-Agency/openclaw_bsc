@@ -3,11 +3,7 @@
     "filesystem": {
       "command": "/home/azlan/.npm-global/bin/mcp-server-filesystem",
       "args": [
-        "/home/azlan/dataroom",
-        "/home/azlan/.openclaw/workspace-main",
         "/home/azlan/.openclaw/workspace-bsc",
-        "/home/azlan/.openclaw/workspace-zen",
-        "/home/azlan/.openclaw/workspace-mna",
         "/home/azlan/.openclaw/media/inbound",
         "/mnt/support_disk/openclaw-media/inbound"
       ]
