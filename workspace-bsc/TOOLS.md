@@ -57,6 +57,7 @@ Add whatever helps you do your job. This is your cheat sheet.
 - Use `SKILL-BSC-ORDER.md` for placing orders — call the API via curl, NOT the browser.
 - Use `SKILL-BSC-DELETE-ORDER.md` for deleting orders.
 - Use `SKILL-BSC-LOOKUP-PROTOCOL.md` for checking today's orders or the user's name.
+- Use `SKILL-BSC-ACTIVE-MENU.md` for checking active breakfast, snack, or lunch dishes.
 - The browser Add buttons are not automation-friendly. The API works perfectly.
 
 ### Key Endpoints
@@ -67,6 +68,7 @@ Add whatever helps you do your job. This is your cheat sheet.
 | Delete order | DELETE | `/orders/:orderId` |
 | Get daily orders | GET | `/orders/daily?date=YYYY-MM-DD&phone=PHONE` |
 | Public name lookup | GET | `/public/lookup-name?phone=PHONE` |
+| Public active menu lookup | GET | `/public/menu?session=SESSION` |
 
 ### Daily Order Retrieval
 - Endpoint: `GET /orders/daily`
@@ -75,6 +77,16 @@ Add whatever helps you do your job. This is your cheat sheet.
   - `phone`: E.164 format (e.g., `+62...`)
 - Returns: Array of orders linked to the phone number for the given date.
 - Note: Brian uses this to answer "What's my order today?" and "What's my order tomorrow?".
+
+### Active Menu Retrieval
+- Endpoint: `GET /public/menu`
+- Query Parameters:
+  - `session`: `BREAKFAST`, `SNACK`, or `LUNCH`
+- Returns: active dishes currently available to order for the requested session.
+- Note: Brian uses this through Orders to answer:
+  - "what's for breakfast"
+  - "what's for snacks"
+  - "what's for lunch"
 
 ### Token Handling
 - Login returns `accessToken` — use as `Authorization: Bearer <token>`
