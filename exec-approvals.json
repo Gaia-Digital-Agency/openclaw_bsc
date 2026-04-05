@@ -1,7 +1,7 @@
 {
   "version": 1,
   "socket": {
-    "path": "/home/azlan/.openclaw/exec-approvals.sock",
+    "path": "/opt/.openclaw-bsc/exec-approvals.sock",
     "token": "PVi9_mAL9Xkln9vRiR1lPT6OixEnlC9o"
   },
   "defaults": {
@@ -9,23 +9,15 @@
     "ask": "off"
   },
   "agents": {
-    "log": {
-      "security": "full",
-      "ask": "off"
-    },
     "bsc": {
       "security": "full",
       "ask": "off"
     },
+    "brian": {
+      "security": "full",
+      "ask": "off"
+    },
     "main": {
-      "security": "full",
-      "ask": "off"
-    },
-    "biz": {
-      "security": "full",
-      "ask": "off"
-    },
-    "web": {
       "security": "full",
       "ask": "off"
     }

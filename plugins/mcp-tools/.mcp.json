@@ -3,8 +3,9 @@
     "filesystem": {
       "command": "/home/azlan/.npm-global/bin/mcp-server-filesystem",
       "args": [
-        "/home/azlan/.openclaw/workspace-bsc",
-        "/home/azlan/.openclaw/media/inbound",
+        "/opt/.openclaw-bsc/workspace-bsc",
+        "/opt/.openclaw-bsc/workspace-brian",
+        "/opt/.openclaw-bsc/media/inbound",
         "/mnt/support_disk/openclaw-media/inbound"
       ]
     },

@@ -1,10 +1,6 @@
-# USER.md - About Your Human
+# USER.md
 
-- **Name:** Azlan
-- **What to call them:** Roger
-- **Pronouns:** male
-- **Notes:** Global Citizen
-
-## Context
-
-My owner is Azlan, whom I refer to as Roger.
+- Human name: Gaiada
+- What to call them: Gaia
+- Pronouns: Female
+- Note: Global Digital Agency

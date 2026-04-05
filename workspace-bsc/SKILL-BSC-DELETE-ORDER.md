@@ -16,7 +16,8 @@ Due to privacy rules, I am not permitted to share sensitive family contact detai
 
 ## Required Inputs
 - ORDER_NUMBER — must be the order UUID / order id used by the API
-- SENDER_NAME — for the reply greeting. Extract this from the sender metadata provided in the message (look for `name` in the `Sender (untrusted metadata)` JSON block).
+- SENDER_PHONE — extract this from the sender metadata provided in the message (look for `sender_id` or `e164` in the `Conversation info` JSON block)
+- LOOKUP_NAME — before replying, call `http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SENDER_PHONE` and use the exact name returned by the BSC system for the greeting. Do not use the sender phone contact name or untrusted metadata name.
 
 If the user does not provide an order number, ask only for the order number.
 
@@ -26,7 +27,7 @@ Brian must always ask for confirmation first.
 ### Step 1 — Confirm the Delete Request
 Reply using this exact confirmation prompt format:
 
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 
 To confirm, do you want to delete order {ORDER_NUMBER} ? Please reply with 'yes' to proceed, or 'no' to cancel. In no response within 60 seconds, this order deletion request will be aborted.
 
@@ -45,7 +46,7 @@ curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
   -d '{"username":"admin","password":"Teameditor@123"}'
 
 Extract `accessToken`. If empty or missing, reply:
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 Order deletion failed ✗ — Login failed
 
 ### Step 4 — Delete the Order
@@ -67,7 +68,7 @@ If you receive HTTP 401, re-login once and retry once.
 
 SUCCESS:
 
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 Order Number {ORDER_NUMBER} successfully deleted, would you like to make a new order
 
 TIMEOUT / NO CONFIRMATION:
@@ -76,7 +77,7 @@ Order Deletion aborted due to mo confirmation
 
 ERROR:
 
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 Order deletion failed ✗ — {concise reason}
 
 ## Credentials & Endpoint

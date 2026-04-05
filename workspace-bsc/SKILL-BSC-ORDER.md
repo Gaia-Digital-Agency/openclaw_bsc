@@ -46,6 +46,7 @@ curl -s "http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SEN
 
 This returns `{"ok":true,"found":true,"phone":"...","name":"...","username":"familyname_studentname","role":"CHILD"}`.
 Use the `username` field as `childUsername` for the order.
+Use the exact BSC lookup name as `LookupName` for all user greetings and replies. Never use the sender phone contact name or untrusted metadata name for greetings.
 
 If the lookup returns multiple results or a PARENT role, you may need to ask the user which child to order for.
 
@@ -133,7 +134,7 @@ Use the BULK REPLY FORMAT below.
 
 SUCCESS (ok = true):
 
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 
 Yes, I have successfully placed the order:
 
@@ -147,7 +148,7 @@ Total        : {totalPriceFormatted}
 Enjoy your meal, {studentName}! 🍽️
 
 ERROR:
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 Order failed ✗ — {concise reason}
 
 Never mention internal documentation, payload schema, or debugging thoughts in the reply.
@@ -156,7 +157,7 @@ Never mention internal documentation, payload schema, or debugging thoughts in t
 
 ## REPLY FORMAT — Bulk Order
 
-Brian ♾️ {SenderName},
+Brian ♾️ {LookupName},
 
 Here is the order summary for {studentFirstName}:
 
