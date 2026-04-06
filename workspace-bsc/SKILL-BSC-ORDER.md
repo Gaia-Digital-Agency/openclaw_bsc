@@ -15,10 +15,22 @@ The site's Add buttons do not respond to browser automation. Always use the API 
 
 ## SINGLE ORDER FLOW
 
-### Step 0 — Parse the Message
+### Step 0 — Authenticate & Parse the Message
+
+**Authentication (MANDATORY FIRST):**
+Execute `SKILL-BSC-AUTHENTICATE.md` to resolve sender identity and authorization.
+This returns: SENDER_PHONE, SENDER_NAME, SENDER_FIRST_NAME, SENDER_USERNAME, SENDER_ROLE, IS_SUPERUSER.
+
+Use SENDER_NAME as `LookupName` for all replies. Use SENDER_FIRST_NAME for casual greetings.
+
+**Superuser override:** If IS_SUPERUSER is true, the sender can place orders for ANY student regardless of family linking. The sender may specify any `childUsername` directly.
+
+**Parent family auth:** If SENDER_ROLE is PARENT (Parent#1 or Parent#2), the sender can place orders for their linked children. The BSC server enforces the parent-child link. If the parent has multiple linked children and the request is ambiguous, ask which child.
+
+**Parse:**
 Extract:
 - STUDENT_USERNAME — verbatim (e.g. syrowatka_natasha)
-- SENDER_PHONE — sender WhatsApp number in digits/E.164 form. Extract this from the sender metadata provided in the message (look for `sender_id` or `e164` in the `Conversation info` JSON block). (e.g. +6281138210188)
+- SENDER_PHONE — already resolved by SKILL-BSC-AUTHENTICATE
 - DATE — convert to YYYY-MM-DD (e.g. "2nd April" → "2026-04-02")
 - SESSION — uppercase (lunch → LUNCH, snack → SNACK, breakfast → BREAKFAST)
 - DISHES — array of dish names, split by comma or "+"
@@ -40,15 +52,14 @@ curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
 Extract accessToken. If empty or missing → reply "Login failed — server error" and stop.
 
 ### Step 1.5 — Resolve childUsername (if not provided by user)
-If the user did not provide a student username but you have SENDER_PHONE, look up the username:
+If the user did not provide a student username, use SENDER_USERNAME from the authentication result (Step 0).
 
-curl -s "http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SENDER_PHONE"
+If SENDER_ROLE is CHILD, use SENDER_USERNAME as `childUsername`.
+If SENDER_ROLE is PARENT and only one child is linked, the lookup may provide the child's username — use it.
+If SENDER_ROLE is PARENT with multiple linked children, ask which child to order for.
+If IS_SUPERUSER is true and no childUsername is specified, ask which student to order for.
 
-This returns `{"ok":true,"found":true,"phone":"...","name":"...","username":"familyname_studentname","role":"CHILD"}`.
-Use the `username` field as `childUsername` for the order.
-Use the exact BSC lookup name as `LookupName` for all user greetings and replies. Never use the sender phone contact name or untrusted metadata name for greetings.
-
-If the lookup returns multiple results or a PARENT role, you may need to ask the user which child to order for.
+LookupName and greetings are already resolved by SKILL-BSC-AUTHENTICATE — do not re-lookup.
 
 ### Step 2 — Place Order (Attempt A: with both fields)
 Try with BOTH `childUsername` and `senderPhone`:
@@ -100,8 +111,9 @@ See REPLY FORMAT section below.
 
 When the message contains orders for multiple dates (e.g. "order for the month of April"):
 
-### Step 0 — Parse ALL dates and dishes
-Extract SENDER_PHONE from the sender WhatsApp metadata once for the whole batch.
+### Step 0 — Authenticate & Parse ALL dates and dishes
+Execute `SKILL-BSC-AUTHENTICATE.md` first (same as Single Order Flow Step 0).
+Use the returned SENDER_PHONE, SENDER_NAME, SENDER_USERNAME, SENDER_ROLE, IS_SUPERUSER for the whole batch.
 Build a list: [ {date, dishes}, {date, dishes}, ... ]
 Skip any dates that fall on Saturday or Sunday — note them as "weekend, skipped".
 
@@ -176,8 +188,9 @@ Enjoy your meals, {studentFirstName}! 🍽️
 ## Sender Authorization Rule
 - Try sending BOTH `childUsername` and `senderPhone` in the `/order/quick` JSON body.
 - If the API rejects one field, fall back to the other (see Step 2 Attempts A/B/C).
-- The BSC server enforces all authorization — no local whitelist. Registered parents can order only for their own linked students; the server rejects unregistered or unlinked senders.
-- Use the public lookup endpoint to resolve `senderPhone` → `childUsername` when the user doesn't provide a username.
+- The BSC server enforces all authorization — no local whitelist. Registered parents (Parent#1 and Parent#2) can order only for their own linked students; the server rejects unregistered or unlinked senders.
+- **Superuser exception:** `+6281138210188` bypasses family-link restrictions and can order for ANY student.
+- Use SKILL-BSC-AUTHENTICATE to resolve sender identity and authorization before any order operation.
 
 ## Order Placement Confirmation Rule
 - Normal order placement does not require a confirmation turn.

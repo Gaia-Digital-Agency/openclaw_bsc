@@ -3,8 +3,8 @@
 Use this skill for ANY query about user name, identity, or daily orders in the BSC system.
 
 ## MANDATORY PROTOCOL
-- You are **FORBIDDEN** from using the names "Roger" or "Azlan" for the operator unless they are explicitly returned by the API call in Step 1.
-- You **MUST** execute the identity lookup in Step 1 as your **FIRST ACTION**.
+- You are **FORBIDDEN** from using the names "Roger" or "Azlan" for the operator unless they are explicitly returned by the authentication lookup.
+- You **MUST** execute SKILL-BSC-AUTHENTICATE as your **FIRST ACTION**.
 - Direct use of the `fetch` tool is the **ONLY** authorized method.
 
 ## Trigger Phrases
@@ -19,17 +19,17 @@ Use this skill for ANY query about user name, identity, or daily orders in the B
 
 ## Execution Flow
 
-### Step 1 — Identity Lookup (MANDATORY FIRST STEP)
-Extract the `SENDER_PHONE` from the sender metadata provided in the message (look for `sender_id` or `e164` in the `Conversation info` JSON block).
+### Step 1 — Authenticate Sender (MANDATORY FIRST STEP)
+Execute `SKILL-BSC-AUTHENTICATE.md` to resolve sender identity and authorization.
+This returns: SENDER_PHONE, SENDER_NAME, SENDER_FIRST_NAME, SENDER_USERNAME, SENDER_ROLE, IS_SUPERUSER.
 
-Call the public lookup endpoint with the `SENDER_PHONE` using the `fetch` tool:
-- **URL:** `http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SENDER_PHONE`
-- **Method:** `GET`
+Use SENDER_NAME for all greetings. If SENDER_ROLE is PARENT (Parent#1 or Parent#2), the sender can view orders for their linked children.
 
-**Instructions:**
-- Use the exact name returned by this API to address the user.
-- If the API returns a `studentName`, use that. If it returns a `Parent0D` label, use that.
-- If no results are found, reply: "I could not find your identity in the system."
+### Step 1a — Superuser: View Any User's Orders
+If IS_SUPERUSER is true:
+- The sender can query orders for ANY user, not just their own family.
+- If the sender specifies a phone number or username for another user, use that for the daily order lookup.
+- If no specific user is mentioned, look up orders for the superuser's own phone.
 
 ### Step 2 — Fetch Daily Orders (If requested)
 1. **Identify Date:** Determine if the user asked for "today" or "tomorrow". Use the current system date and calculate accordingly (YYYY-MM-DD).

@@ -61,6 +61,6 @@ AvailableDishes: none
 ```
 
 ## Notes
-- If the current workflow already requires sender verification, perform the normal BSC lookup-name step first.
+- If the current workflow already requires sender verification, execute `SKILL-BSC-AUTHENTICATE.md` first to resolve sender identity.
 - Do not expose raw JSON unless Brian explicitly asks for execution detail.
 - The purpose of this skill is to tell Brian which dishes are actively available to order for the requested session.

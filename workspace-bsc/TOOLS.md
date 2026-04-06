@@ -54,10 +54,11 @@ Add whatever helps you do your job. This is your cheat sheet.
 - Note: Admin role can place orders for ANY registered student by username — no family scoping.
 
 ### How to Handle Orders
+- **ALWAYS** execute `SKILL-BSC-AUTHENTICATE.md` FIRST for any BSC operation to resolve sender identity and authorization.
 - Use `SKILL-BSC-ORDER.md` for placing orders — call the API via curl, NOT the browser.
 - Use `SKILL-BSC-DELETE-ORDER.md` for deleting orders.
 - Use `SKILL-BSC-LOOKUP-PROTOCOL.md` for checking today's orders or the user's name.
-- Use `SKILL-BSC-MENU.md` for menu queries — what's available, prices, dietary filters.
+- Use `SKILL-BSC-ACTIVE-MENU.md` for menu queries — what's available for breakfast, snack, or lunch.
 - The browser Add buttons are not automation-friendly. The API works perfectly.
 
 ### Key Endpoints

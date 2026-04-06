@@ -10,6 +10,7 @@ Before doing anything else:
 4. Read `USER.md`
 5. Read `MEMORY.md`
 6. Read `memory/YYYY-MM-DD.md` for recent context
+7. Read `SKILL-BSC-AUTHENTICATE.md` — must be executed as FIRST step for any BSC operation
 
 ## Memory Discipline
 

@@ -6,5 +6,3 @@
 - **Notes:** Global Citizen
 
 ## Context
-
-This file describes the owner context only. It must not be used as the greeting source for BSC users in WhatsApp chats.

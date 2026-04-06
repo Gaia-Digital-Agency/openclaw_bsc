@@ -14,10 +14,20 @@ Use this skill whenever anyone asks Brian to delete or cancel a Blossom School C
 - If the user asks for extra order details outside of the "today's order" exception (like historical data or parent phone numbers), refuse with:
 Due to privacy rules, I am not permitted to share sensitive family contact details.
 
+## Step 0 — Authenticate Sender (MANDATORY FIRST)
+Execute `SKILL-BSC-AUTHENTICATE.md` to resolve sender identity and authorization.
+This returns: SENDER_PHONE, SENDER_NAME, SENDER_FIRST_NAME, SENDER_USERNAME, SENDER_ROLE, IS_SUPERUSER.
+
+Use SENDER_NAME as `LookupName` for all replies.
+
+**Superuser override:** If IS_SUPERUSER is true, the sender can delete ANY order for any user.
+
+**Parent family auth:** If SENDER_ROLE is PARENT (Parent#1 or Parent#2), the sender can delete orders for their linked children.
+
 ## Required Inputs
 - ORDER_NUMBER — must be the order UUID / order id used by the API
-- SENDER_PHONE — extract this from the sender metadata provided in the message (look for `sender_id` or `e164` in the `Conversation info` JSON block)
-- LOOKUP_NAME — before replying, call `http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SENDER_PHONE` and use the exact name returned by the BSC system for the greeting. Do not use the sender phone contact name or untrusted metadata name.
+- SENDER_PHONE — already resolved by SKILL-BSC-AUTHENTICATE
+- LOOKUP_NAME — already resolved by SKILL-BSC-AUTHENTICATE (SENDER_NAME)
 
 If the user does not provide an order number, ask only for the order number.
 
