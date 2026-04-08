@@ -4,6 +4,7 @@
 
 **API Base:** `http://34.158.47.112/schoolcatering/api/v1`
 **Site:** `http://34.158.47.112/schoolcatering/`
+**Current branch standard:** `main`
 
 ### Agent Account
 - **Username:** `admin`
@@ -36,6 +37,7 @@ Use this server-side flow to resolve a sender's family:
 - Returns the sender plus family-scoped `parents[]` and `children[]`
 - Backed by the schoolcatering `family_id` model
 - Supports primary parent, secondary parent phone, and youngster numbers
+- Real-world verified on live server on 2026-04-08
 
 **When to use which:**
 - "Who are my kids?" → `family-context`
@@ -49,6 +51,11 @@ Use this server-side flow to resolve a sender's family:
 - `GET /admin/family-orders?phone=PHONE&date=YYYY-MM-DD`
 - Returns the family-scoped orders Brian is allowed to reveal for that sender
 - Use for "what's my order today/tomorrow" and "what did my sibling/child order"
+
+### Family Repair
+- `POST /admin/families/merge`
+- Admin-only repair endpoint when two existing family groups must become one
+- Use only for explicit admin correction, not normal Brian lookup flow
 
 ### Token Handling
 - Login returns `accessToken` — use as `Authorization: Bearer <token>`
