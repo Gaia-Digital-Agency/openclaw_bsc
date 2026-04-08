@@ -12,6 +12,10 @@
     "fetch": {
       "command": "/home/azlan/.npm-global/bin/mcp-fetch",
       "args": []
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--headless"]
     }
   }
 }
