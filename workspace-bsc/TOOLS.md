@@ -1,115 +1,69 @@
-# TOOLS.md - Local Notes
-
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
-
-## What Goes Here
-
-Things like:
-
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
-
-## Examples
-
-```markdown
-### Cameras
-
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
-
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
-```
-
-## Why Separate?
-
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
-
----
-
-Add whatever helps you do your job. This is your cheat sheet.
-
----
+# TOOLS.md — BSC API Reference
 
 ## BSC — Blossom School Catering
 
 **API Base:** `http://34.158.47.112/schoolcatering/api/v1`
 **Site:** `http://34.158.47.112/schoolcatering/`
-**Quick Order Page:** `http://34.158.47.112/schoolcatering/tools/quick-order`
 
-### Agent Account (for placing orders via API)
+### Agent Account
 - **Username:** `admin`
 - **Password:** `Teameditor@123`
-- **Role:** `ADMIN`
-- Note: Admin role can place orders for ANY registered student by username — no family scoping.
+- **Role:** `ADMIN` (can place orders for any student)
 
 ### How to Handle Orders
-- **ALWAYS** execute `SKILL-BSC-AUTHENTICATE.md` FIRST for any BSC operation to resolve sender identity and authorization.
-- Use `SKILL-BSC-ORDER.md` for placing orders — call the API via curl, NOT the browser.
+- ALWAYS execute `SKILL-BSC-AUTHENTICATE.md` FIRST for any BSC operation.
+- Use `SKILL-BSC-ORDER.md` for placing orders via API (never browser).
 - Use `SKILL-BSC-DELETE-ORDER.md` for deleting orders.
-- Use `SKILL-BSC-LOOKUP-PROTOCOL.md` for checking today's orders or the user's name.
-- Use `SKILL-BSC-ACTIVE-MENU.md` for menu queries — what's available for breakfast, snack, or lunch.
-- The browser Add buttons are not automation-friendly. The API works perfectly.
+- Use `SKILL-BSC-LOOKUP-PROTOCOL.md` for name, student, or order lookups.
+- Use `SKILL-BSC-ACTIVE-MENU.md` for menu queries.
 
 ### Key Endpoints
 | Action | Method | Path |
 |---|---|---|
 | Login | POST | `/auth/login` |
-| Place order (all-in-one) | POST | `/order/quick` |
+| Place order | POST | `/order/quick` |
 | Delete order | DELETE | `/orders/:orderId` |
-| Get daily orders | GET | `/orders/daily?date=YYYY-MM-DD&phone=PHONE` |
 | Public name lookup | GET | `/public/lookup-name?phone=PHONE` |
-| Get menu (all or by session) | GET | `/menus` or `/menus?session=LUNCH\|SNACK\|BREAKFAST` |
-| List all children (admin) | GET | `/admin/children` |
+| List parents (with children) | GET | `/admin/parents` |
+| List all children (with grades) | GET | `/admin/children` |
+| Get daily orders | GET | `/orders/daily?date=YYYY-MM-DD&phone=PHONE` |
+| Get menu | GET | `/menus` or `/menus?session=LUNCH\|SNACK\|BREAKFAST` |
 
-### Admin Children Endpoint
-- **Endpoint:** `GET /admin/children`
-- **Auth:** Requires admin Bearer token
-- **Returns:** Array of all students in the system with:
-  - `id`, `user_id`, `username` (format: `lastname_firstname`, e.g. `syrowatka_elizabeth`)
-  - `first_name`, `last_name`, `phone_number`, `email`
-  - `date_of_birth`, `gender`, `school_name`, `school_grade`, `registration_grade`
-  - `dietary_allergies`, `parent_ids` (array of parent UUIDs)
-- **Use this endpoint to:**
-  - List all children linked to a parent (filter by `parent_ids`)
-  - Resolve a first name to a `childUsername` (e.g. parent says "Elizabeth" → find `syrowatka_elizabeth`)
-  - Look up school grades for students
-  - Verify if a child exists under a parent's account
-- **Important:** When a parent asks "who are my kids", use this endpoint filtered by parent ID — NOT `orders/daily` which only shows children with active orders.
-- **To get parent UUID:** Use `public/lookup-name?phone=PARENT_PHONE` first, then match the parent name against `parent_ids` in the children list.
+### Parent-Child Resolution (best approach)
+Use this 2-step flow to resolve a parent's linked children:
+
+**Step 1:** `GET /admin/parents` (admin token required)
+- Find parent by matching `phone_number` to sender phone
+- Returns: parent UUID, name, `linked_children_count`, and `youngsters[]` array with child names
+- Also returns `parent2_first_name` and `parent2_phone` (second parent)
+
+**Step 2:** `GET /admin/children` (admin token required)
+- Filter by matching `parent_ids` to the parent UUID from Step 1
+- Returns: `username`, `first_name`, `last_name`, `school_grade`, `phone_number`, `dietary_allergies`
+
+**When to use which:**
+- "Who are my kids?" → Step 1 alone (fast, gives names)
+- "Order for Elizabeth" → Step 1 + Step 2 (need username from children)
+- "What grade is Elizabeth in?" → Step 1 + Step 2 (need grade from children)
+- Username format is `lastname_firstname` (e.g. `syrowatka_elizabeth`) — never guess, always look up
+
+**Never** use `/orders/daily` to infer linked children. It only shows children with active orders.
 
 ### Daily Order Retrieval
-- Endpoint: `GET /orders/daily`
-- Query Parameters:
-  - `date`: `YYYY-MM-DD`
-  - `phone`: E.164 format (e.g., `+62...`)
-- Returns: Array of orders linked to the phone number for the given date.
-- Note: Brian uses this to answer "What's my order today?" and "What's my order tomorrow?".
+- `GET /orders/daily?date=YYYY-MM-DD&phone=PHONE`
+- Returns orders linked to the phone number for the given date
+- Use for "what's my order today/tomorrow" only
 
 ### Token Handling
 - Login returns `accessToken` — use as `Authorization: Bearer <token>`
-- Tokens expire — if you get 401, re-login and retry once
+- If you get 401, re-login once and retry
 
-### Admin Delete Order Capability
-- Admin can delete orders for operational management.
-- API route: `DELETE /orders/:orderId`
-- For admin users, the backend performs a clean cancellation by updating the order to `status = CANCELLED`, setting `deleted_at`, and inserting an `ORDER_CANCELLED` audit row in `order_mutations`.
-- Brian must require an explicit `yes` confirmation from the user before calling this endpoint.
-- If the `yes` confirmation does not arrive within 60 seconds, Brian must abort and say exactly: `Order Deletion aborted due to mo confirmation`
+### Delete Order
+- `DELETE /orders/:orderId` (admin token required)
+- Brian must require explicit `yes` confirmation before calling
+- If no confirmation within 60 seconds, abort
 
-### Quick Order Sender Authorization
-- `/order/quick` requires Brian to send `senderPhone` in the JSON body for WhatsApp-driven orders.
-- The BSC server handles all authorization dynamically — no hardcoded list needed.
-- Registered parents can order only for their own linked students.
-- The server will reject any `senderPhone` not registered in BSC or not linked to the target student.
-- Brian does not maintain any local whitelist — the BSC database is the single source of truth.
+### Quick Order Authorization
+- `/order/quick` requires `senderPhone` in the JSON body
+- The BSC server enforces parent-child linking dynamically
+- No local whitelist — the database is the single source of truth

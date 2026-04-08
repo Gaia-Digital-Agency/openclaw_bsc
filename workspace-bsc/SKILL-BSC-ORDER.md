@@ -52,17 +52,17 @@ curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
 Extract accessToken. If empty or missing → reply "Login failed — server error" and stop.
 
 ### Step 1.5 — Resolve childUsername (if not provided by user)
-If the user did not provide a student username, use SENDER_USERNAME from the authentication result (Step 0).
 
 If SENDER_ROLE is CHILD, use SENDER_USERNAME as `childUsername`.
-If SENDER_ROLE is PARENT:
-1. Call `GET /admin/children` with admin Bearer token
-2. Filter results where `parent_ids` includes the parent's UUID
-3. If parent gives a first name (e.g. "Elizabeth"), match it to `first_name` in the filtered list and use that child's `username` as `childUsername`
-4. If multiple children match or no name given, list the children and ask which one
-5. Username format is `lastname_firstname` (e.g. `syrowatka_elizabeth`) — never guess, always look up
 
-If IS_SUPERUSER is true and no childUsername is specified, ask which student to order for.
+If SENDER_ROLE is PARENT:
+1. `GET /admin/parents` with admin token → find parent by `phone_number` → get parent UUID
+2. `GET /admin/children` with admin token → filter by `parent_ids` matching parent UUID
+3. If parent gives a first name (e.g. "Elizabeth"), match `first_name` in filtered list → use that child's `username`
+4. If no name given and multiple children, list them and ask which child
+5. Never guess usernames — always look up (format: `lastname_firstname`)
+
+If IS_SUPERUSER is true and no childUsername specified, ask which student.
 
 LookupName and greetings are already resolved by SKILL-BSC-AUTHENTICATE — do not re-lookup.
 

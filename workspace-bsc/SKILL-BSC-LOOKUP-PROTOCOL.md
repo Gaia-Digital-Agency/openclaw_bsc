@@ -1,78 +1,70 @@
-# SKILL-BSC-LOOKUP-PROTOCOL.md — MANDATORY DAILY RETRIEVAL
+# SKILL-BSC-LOOKUP-PROTOCOL.md — Name, Student & Order Lookups
 
-Use this skill for ANY query about user name, identity, or daily orders in the BSC system.
+Use this skill for any query about user name, identity, linked students, grades, or daily orders.
 
 ## MANDATORY PROTOCOL
-- You are **FORBIDDEN** from using the names "Roger" or "Azlan" for the operator unless they are explicitly returned by the authentication lookup.
-- You **MUST** execute SKILL-BSC-AUTHENTICATE as your **FIRST ACTION**.
-- Direct use of the `fetch` tool is the **ONLY** authorized method.
+- FORBIDDEN from using "Roger" or "Azlan" unless returned by the lookup API.
+- MUST execute SKILL-BSC-AUTHENTICATE as FIRST ACTION.
+- Direct use of the `fetch` tool is the only authorized method.
+- Never infer linked students from `/orders/daily`. Use `/admin/parents` + `/admin/children`.
 
 ## Trigger Phrases
-- "what's my order today"
-- "today's order"
-- "what's my order tomorrow"
-- "tomorrow's order"
-- "whats my name"
-- "who am I"
-- "whats my name in BSC"
-- "what is my name in BSC"
-- "who are my kids"
-- "what students are under my account"
+- "what's my name", "who am I"
+- "who are my kids", "what students are under my account"
 - "what grade is X in"
+- "what's my order today", "what's my order tomorrow"
 
 ## Execution Flow
 
-### Step 1 — Authenticate Sender (MANDATORY FIRST STEP)
-Execute `SKILL-BSC-AUTHENTICATE.md` to resolve sender identity and authorization.
-This returns: SENDER_PHONE, SENDER_NAME, SENDER_FIRST_NAME, SENDER_USERNAME, SENDER_ROLE, IS_SUPERUSER.
+### Step 1 — Authenticate Sender (MANDATORY FIRST)
+Execute `SKILL-BSC-AUTHENTICATE.md` to resolve sender identity.
+Returns: SENDER_PHONE, SENDER_NAME, SENDER_FIRST_NAME, SENDER_USERNAME, SENDER_ROLE, IS_SUPERUSER.
 
-Use SENDER_NAME for all greetings. If SENDER_ROLE is PARENT (Parent#1 or Parent#2), the sender can view orders for their linked children.
+Use SENDER_NAME for all greetings.
 
-### Step 1a — Superuser: View Any User's Orders
-If IS_SUPERUSER is true:
-- The sender can query orders for ANY user, not just their own family.
-- If the sender specifies a phone number or username for another user, use that for the daily order lookup.
-- If no specific user is mentioned, look up orders for the superuser's own phone.
+### Step 1a — Superuser
+If IS_SUPERUSER is true, the sender can query orders/students for any user.
 
-### Step 1b — Resolve Children (If parent asks about kids/students)
-If SENDER_ROLE is PARENT and the user asks about their children, students, or grades:
-1. **Login** to get admin token (same as Step 2)
-2. **Fetch all children:** `GET /admin/children` with admin Bearer token
-3. **Filter** by matching `parent_ids` to the parent's UUID
-4. **Return** all matched children with: first_name, last_name, username, school_grade, phone_number
+### Step 1b — Resolve Children (parent asks about kids/students/grades)
+If SENDER_ROLE is PARENT:
 
-This is also used to resolve first name → childUsername when a parent says "order for Elizabeth":
-- Find the child where `first_name` matches and `parent_ids` includes the parent's UUID
-- Use that child's `username` field as the `childUsername` for the order API
+1. **Login** to get admin token
+2. **Fetch parents:** `GET /admin/parents` with admin Bearer token
+3. **Find parent** by matching `phone_number` to SENDER_PHONE → get parent UUID and `youngsters[]`
+4. If the user just asks "who are my kids" → answer from `youngsters[]` (fast, one call)
+5. If the user asks about grades, usernames, or you need `childUsername` for ordering:
+   - **Fetch children:** `GET /admin/children` with admin Bearer token
+   - **Filter** by matching `parent_ids` to the parent UUID
+   - This gives: `username`, `first_name`, `last_name`, `school_grade`, `phone_number`
 
-### Step 2 — Fetch Daily Orders (If requested)
-1. **Identify Date:** Determine if the user asked for "today" or "tomorrow". Use the current system date and calculate accordingly (YYYY-MM-DD).
-2. **Login** to get an auth token using the `fetch` tool:
-   - **URL:** `http://34.158.47.112/schoolcatering/api/v1/auth/login`
-   - **Method:** `POST`
-   - **Body:** `{"username":"admin","password":"Teameditor@123"}`
-3. **Fetch orders** using the `fetch` tool:
-   - **URL:** `http://34.158.47.112/schoolcatering/api/v1/orders/daily?date=DATE_CALCULATED&phone=SENDER_PHONE`
-   - **Method:** `GET`
-   - **Headers:** `{"Authorization": "Bearer TOKEN_HERE"}` (Use the token from Login)
+### Step 2 — Fetch Daily Orders (if requested)
+1. Determine date: "today" or "tomorrow" → YYYY-MM-DD
+2. **Login:** POST `/auth/login` with `{"username":"admin","password":"Teameditor@123"}`
+3. **Fetch:** GET `/orders/daily?date=DATE&phone=SENDER_PHONE` with Bearer token
+
+`/orders/daily` is for dated orders ONLY. Never use it to determine linked students.
 
 ### Step 3 — Reply
-Use ONLY plain text. NO Markdown symbols (** bold, etc).
+Use plain text only.
 
-Example (Today):
+Example (name):
+Brian ♾️ Your name is Natasha Syrowatka.
+
+Example (kids):
+Brian ♾️ Anthony, the students linked to your account are:
+Elizabeth Syrowatka
+Natasha Syrowatka
+Olivia Syrowatka
+Zara Syrowatka
+
+Example (grade):
+Brian ♾️ Elizabeth is in G9 at Bali Island School.
+
+Example (order):
 Brian ♾️ Natasha,
 Today's Order
 Order ID: #9986F34E
 Date: 2026-03-30
 Session: LUNCH
 Items: Beef Rice Bowl, Beetroot & Hazelnut Salad
-Enjoy your meal, Natasha ❤️
-
-Example (Tomorrow):
-Brian ♾️ Natasha,
-Tomorrow's Order
-Order ID: #A123B456
-Date: 2026-03-31
-Session: LUNCH
-Items: Chicken Pasta, Fruit Salad
-Enjoy your meal, Natasha ❤️
+Enjoy your meal, Natasha!
