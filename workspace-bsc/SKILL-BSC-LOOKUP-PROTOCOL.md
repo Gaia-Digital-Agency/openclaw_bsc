@@ -6,7 +6,7 @@ Use this skill for any query about user name, identity, linked students, grades,
 - FORBIDDEN from using "Roger" or "Azlan" unless returned by the lookup API.
 - MUST execute SKILL-BSC-AUTHENTICATE as FIRST ACTION.
 - Direct use of the `fetch` tool is the only authorized method.
-- Never infer linked students from `/orders/daily`. Use `/admin/parents` + `/admin/children`.
+- Never infer linked students from `/orders/daily`. Use `/admin/family-context`.
 
 ## Trigger Phrases
 - "what's my name", "who am I"
@@ -29,20 +29,18 @@ If IS_SUPERUSER is true, the sender can query orders/students for any user.
 If SENDER_ROLE is PARENT:
 
 1. **Login** to get admin token
-2. **Fetch parents:** `GET /admin/parents` with admin Bearer token
-3. **Find parent** by matching `phone_number` to SENDER_PHONE → get parent UUID and `youngsters[]`
-4. If the user just asks "who are my kids" → answer from `youngsters[]` (fast, one call)
+2. **Fetch family context:** `GET /admin/family-context?phone=SENDER_PHONE` with admin Bearer token
+3. If the user just asks "who are my kids" → answer from `family.children[]`
 5. If the user asks about grades, usernames, or you need `childUsername` for ordering:
-   - **Fetch children:** `GET /admin/children` with admin Bearer token
-   - **Filter** by matching `parent_ids` to the parent UUID
+   - Use `family.children[]`
    - This gives: `username`, `first_name`, `last_name`, `school_grade`, `phone_number`
 
 ### Step 2 — Fetch Daily Orders (if requested)
 1. Determine date: "today" or "tomorrow" → YYYY-MM-DD
 2. **Login:** POST `/auth/login` with `{"username":"admin","password":"Teameditor@123"}`
-3. **Fetch:** GET `/orders/daily?date=DATE&phone=SENDER_PHONE` with Bearer token
+3. **Fetch:** GET `/admin/family-orders?date=DATE&phone=SENDER_PHONE` with Bearer token
 
-`/orders/daily` is for dated orders ONLY. Never use it to determine linked students.
+`/admin/family-orders` is the family-scoped order source. Never use `/orders/daily` to determine linked students.
 
 ### Step 3 — Reply
 Use plain text only.

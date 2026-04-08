@@ -5,7 +5,7 @@ All other SKILL-BSC-* skills must call this skill's protocol first before any op
 
 ## Purpose
 
-Resolve sender identity from sender phone number and, for parent numbers, resolve the full linked student roster from the BSC API.
+Resolve sender identity from sender phone number and then resolve the sender's full family scope from the BSC API.
 
 ## Trigger
 
@@ -41,25 +41,28 @@ Extract:
 - `SENDER_ROLE`
 - `SENDER_FIRST_NAME`
 
-## Step 4 — Parent Family Lookup
+## Step 4 — Family Lookup
 
-If `SENDER_ROLE` is `PARENT`, or if you need to know which students are linked to this parent phone:
+Always resolve the sender's family scope after Step 3, even if the sender is a youngster or the second parent phone.
 
 1. Login:
    - URL: `http://34.158.47.112/schoolcatering/api/v1/auth/login`
    - Method: `POST`
    - Body: `{"username":"admin","password":"Teameditor@123"}`
 2. Call:
-   - URL: `http://34.158.47.112/schoolcatering/api/v1/admin/family-students?phone=SENDER_PHONE`
+   - URL: `http://34.158.47.112/schoolcatering/api/v1/admin/family-context?phone=SENDER_PHONE`
    - Method: `GET`
    - Headers: `{"Authorization":"Bearer TOKEN_HERE"}`
 
-The family-students response is the source of truth for parent-to-student linking.
-Never infer a parent's linked students from `/orders/daily`.
+The family-context response is the source of truth for family membership.
+It is backed by the server-side `family_id` model.
+Never infer family membership from surnames, `/admin/parents`, `/admin/children`, or `/orders/daily`.
 
 Store:
+- `FAMILY_ID`
 - `LINKED_STUDENTS_COUNT`
 - `LINKED_STUDENTS` — array of `{name, firstName, username, phone}`
+- `LINKED_PARENTS` — array of `{name, phone, username?}`
 
 If the family lookup returns `found: true`, treat that roster as authoritative even when only some children have orders for a specific date.
 
@@ -72,21 +75,23 @@ SENDER_PHONE: +62...
 SENDER_NAME: Anthony Syrowatka
 SENDER_FIRST_NAME: Anthony
 SENDER_USERNAME: syrowatka_dewi
-SENDER_ROLE: PARENT | CHILD
+SENDER_ROLE: PARENT | YOUNGSTER
 IS_SUPERUSER: true | false
+FAMILY_ID: uuid
 LINKED_STUDENTS_COUNT: 0..n
 LINKED_STUDENTS: [{name, firstName, username, phone}, ...]
+LINKED_PARENTS: [{name, phone, username}, ...]
 ```
 
 ## Failure Handling
 
 - If public lookup returns `found: false` and sender is not the superuser:
   Reply: `I could not find your identity in the BSC system.`
-- If family lookup fails for a parent, do not invent student names. Continue only with the identity you actually resolved.
+- If family lookup returns `found: false`, do not invent family members. Continue only with the identity you actually resolved.
 
 ## Rules
 
 - Never use the sender's phone contact name for greetings.
 - Always use the exact name returned by the API lookup.
-- For parent family membership, always use `/admin/family-students`.
-- Never infer family membership from `/orders/daily`.
+- Always use `/admin/family-context` for family membership.
+- Never infer family membership from surnames or `/orders/daily`.

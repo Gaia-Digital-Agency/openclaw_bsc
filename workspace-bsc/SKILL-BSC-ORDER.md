@@ -25,7 +25,7 @@ Use SENDER_NAME as `LookupName` for all replies. Use SENDER_FIRST_NAME for casua
 
 **Superuser override:** If IS_SUPERUSER is true, the sender can place orders for ANY student regardless of family linking. The sender may specify any `childUsername` directly.
 
-**Parent family auth:** If SENDER_ROLE is PARENT (Parent#1 or Parent#2), the sender can place orders for their linked children. The BSC server enforces the parent-child link. If the parent has multiple linked children and the request is ambiguous, ask which child.
+**Parent family auth:** If SENDER_ROLE is PARENT (Parent#1 or Parent#2), the sender can place orders for any child returned by the server-side `family_id` family context. If the family has multiple children and the request is ambiguous, ask which child.
 
 **Parse:**
 Extract:
@@ -53,12 +53,12 @@ Extract accessToken. If empty or missing → reply "Login failed — server erro
 
 ### Step 1.5 — Resolve childUsername (if not provided by user)
 
-If SENDER_ROLE is CHILD, use SENDER_USERNAME as `childUsername`.
+If SENDER_ROLE is YOUNGSTER, use SENDER_USERNAME as `childUsername`.
 
 If SENDER_ROLE is PARENT:
-1. `GET /admin/parents` with admin token → find parent by `phone_number` → get parent UUID
-2. `GET /admin/children` with admin token → filter by `parent_ids` matching parent UUID
-3. If parent gives a first name (e.g. "Elizabeth"), match `first_name` in filtered list → use that child's `username`
+1. `GET /admin/family-context?phone=SENDER_PHONE` with admin token
+2. Use `family.children[]` as the allowed child roster
+3. If parent gives a first name (e.g. "Elizabeth"), match `first_name` in that roster → use that child's `username`
 4. If no name given and multiple children, list them and ask which child
 5. Never guess usernames — always look up (format: `lastname_firstname`)
 
@@ -193,7 +193,7 @@ Enjoy your meals, {studentFirstName}! 🍽️
 ## Sender Authorization Rule
 - Try sending BOTH `childUsername` and `senderPhone` in the `/order/quick` JSON body.
 - If the API rejects one field, fall back to the other (see Step 2 Attempts A/B/C).
-- The BSC server enforces all authorization — no local whitelist. Registered parents (Parent#1 and Parent#2) can order only for their own linked students; the server rejects unregistered or unlinked senders.
+- The BSC server and `family_id` family context enforce authorization — no local whitelist. Registered parents (Parent#1 and Parent#2) can order only for students in their own family; the server rejects unregistered or out-of-family senders.
 - **Superuser exception:** `+6281138210188` bypasses family-link restrictions and can order for ANY student.
 - Use SKILL-BSC-AUTHENTICATE to resolve sender identity and authorization before any order operation.
 

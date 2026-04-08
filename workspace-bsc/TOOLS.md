@@ -24,35 +24,31 @@
 | Place order | POST | `/order/quick` |
 | Delete order | DELETE | `/orders/:orderId` |
 | Public name lookup | GET | `/public/lookup-name?phone=PHONE` |
-| List parents (with children) | GET | `/admin/parents` |
-| List all children (with grades) | GET | `/admin/children` |
+| Get family context by phone | GET | `/admin/family-context?phone=PHONE` |
+| Get family orders by phone/date | GET | `/admin/family-orders?phone=PHONE&date=YYYY-MM-DD` |
 | Get daily orders | GET | `/orders/daily?date=YYYY-MM-DD&phone=PHONE` |
 | Get menu | GET | `/menus` or `/menus?session=LUNCH\|SNACK\|BREAKFAST` |
 
-### Parent-Child Resolution (best approach)
-Use this 2-step flow to resolve a parent's linked children:
+### Family Resolution (best approach)
+Use this server-side flow to resolve a sender's family:
 
-**Step 1:** `GET /admin/parents` (admin token required)
-- Find parent by matching `phone_number` to sender phone
-- Returns: parent UUID, name, `linked_children_count`, and `youngsters[]` array with child names
-- Also returns `parent2_first_name` and `parent2_phone` (second parent)
-
-**Step 2:** `GET /admin/children` (admin token required)
-- Filter by matching `parent_ids` to the parent UUID from Step 1
-- Returns: `username`, `first_name`, `last_name`, `school_grade`, `phone_number`, `dietary_allergies`
+**Step 1:** `GET /admin/family-context?phone=PHONE` (admin token required)
+- Returns the sender plus family-scoped `parents[]` and `children[]`
+- Backed by the schoolcatering `family_id` model
+- Supports primary parent, secondary parent phone, and youngster numbers
 
 **When to use which:**
-- "Who are my kids?" → Step 1 alone (fast, gives names)
-- "Order for Elizabeth" → Step 1 + Step 2 (need username from children)
-- "What grade is Elizabeth in?" → Step 1 + Step 2 (need grade from children)
+- "Who are my kids?" → `family-context`
+- "Order for Elizabeth" → `family-context` (need username from `children[]`)
+- "What grade is Elizabeth in?" → `family-context`
 - Username format is `lastname_firstname` (e.g. `syrowatka_elizabeth`) — never guess, always look up
 
-**Never** use `/orders/daily` to infer linked children. It only shows children with active orders.
+**Never** use `/orders/daily` to infer family membership. It only shows dated orders.
 
-### Daily Order Retrieval
-- `GET /orders/daily?date=YYYY-MM-DD&phone=PHONE`
-- Returns orders linked to the phone number for the given date
-- Use for "what's my order today/tomorrow" only
+### Family Order Retrieval
+- `GET /admin/family-orders?phone=PHONE&date=YYYY-MM-DD`
+- Returns the family-scoped orders Brian is allowed to reveal for that sender
+- Use for "what's my order today/tomorrow" and "what did my sibling/child order"
 
 ### Token Handling
 - Login returns `accessToken` — use as `Authorization: Bearer <token>`
@@ -65,5 +61,5 @@ Use this 2-step flow to resolve a parent's linked children:
 
 ### Quick Order Authorization
 - `/order/quick` requires `senderPhone` in the JSON body
-- The BSC server enforces parent-child linking dynamically
+- Brian must first confirm the requested child belongs to the sender's `family_id`
 - No local whitelist — the database is the single source of truth
