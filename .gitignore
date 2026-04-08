@@ -16,3 +16,10 @@ update-check.json
 
 # Backups
 *.bak*
+
+# Local Runtime State
+canvas/id.txt
+flows/
+tasks/
+venv/
+workspace_bak/
