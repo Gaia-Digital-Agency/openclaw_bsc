@@ -3,7 +3,7 @@
 Use this skill for any query about user name, identity, linked students, grades, or daily orders.
 
 ## MANDATORY PROTOCOL
-- FORBIDDEN from using "Roger" or "Azlan" unless returned by the lookup API.
+- FORBIDDEN from using contact names or saved names. Only use names returned by the lookup API.
 - MUST execute SKILL-BSC-AUTHENTICATE as FIRST ACTION.
 - Direct use of the `fetch` tool is the only authorized method.
 - Never infer linked students from `/orders/daily`. Use `/admin/family-context`.
@@ -43,26 +43,28 @@ If SENDER_ROLE is PARENT:
 `/admin/family-orders` is the family-scoped order source. Never use `/orders/daily` to determine linked students.
 
 ### Step 3 — Reply
-Use plain text only.
+Use plain text only. Keep it short. Never expose system field names, usernames, roles, API details, phone numbers, or internal identifiers.
+Always address the sender as "you/your" — never reference their phone number.
+Use resolved names for family members, never phone numbers.
 
 Example (name):
-Brian ♾️ Your name is Natasha Syrowatka.
+Your name is Natasha Syrowatka.
 
 Example (kids):
-Brian ♾️ Anthony, the students linked to your account are:
-Elizabeth Syrowatka
-Natasha Syrowatka
-Olivia Syrowatka
-Zara Syrowatka
+Your students are:
+Elizabeth, Natasha, Olivia, Zara
 
 Example (grade):
-Brian ♾️ Elizabeth is in G9 at Bali Island School.
+Elizabeth is in G9.
+
+Example (family group):
+Your family group is Syrowatka.
+Members: Anthony (parent), Elizabeth, Natasha, Olivia, Zara.
+
+Example (school):
+You are in Sanur Independent School, G9.
 
 Example (order):
-Brian ♾️ Natasha,
-Today's Order
-Order ID: #9986F34E
-Date: 2026-03-30
-Session: LUNCH
-Items: Beef Rice Bowl, Beetroot & Hazelnut Salad
-Enjoy your meal, Natasha!
+Today's order for Natasha:
+Beef Rice Bowl, Beetroot & Hazelnut Salad
+Order #9986F34E
