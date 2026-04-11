@@ -45,7 +45,7 @@ Date rules:
   `{"childUsername":"...","senderPhone":"...","date":"2026-04-02","session":"LUNCH","dishes":["..."]}`
 
 ### Step 1 — Login (once per session)
-curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
+curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Teameditor@123"}'
 
@@ -69,7 +69,7 @@ LookupName and greetings are already resolved by SKILL-BSC-AUTHENTICATE — do n
 ### Step 2 — Place Order (Attempt A: with both fields)
 Try with BOTH `childUsername` and `senderPhone`:
 
-curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
+curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/order/quick \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN_HERE" \
   -d '{"childUsername":"STUDENT_USERNAME","senderPhone":"SENDER_PHONE","date":"YYYY-MM-DD","session":"SESSION","dishes":["Dish1","Dish2"]}'
@@ -79,7 +79,7 @@ If Attempt A succeeds → go to Step 3.
 ### Step 2 Fallback — Place Order (Attempt B: childUsername only)
 If Attempt A fails with a validation error about `senderPhone`, retry WITHOUT `senderPhone`:
 
-curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
+curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/order/quick \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN_HERE" \
   -d '{"childUsername":"STUDENT_USERNAME","date":"YYYY-MM-DD","session":"SESSION","dishes":["Dish1","Dish2"]}'
@@ -87,7 +87,7 @@ curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
 ### Step 2 Fallback — Place Order (Attempt C: senderPhone only)
 If Attempt B also fails, retry with `senderPhone` only (no `childUsername`):
 
-curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
+curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/order/quick \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN_HERE" \
   -d '{"senderPhone":"SENDER_PHONE","date":"YYYY-MM-DD","session":"SESSION","dishes":["Dish1","Dish2"]}'
@@ -123,7 +123,7 @@ Build a list: [ {date, dishes}, {date, dishes}, ... ]
 Skip any dates that fall on Saturday or Sunday — note them as "weekend, skipped".
 
 ### Step 1 — Login ONCE
-curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
+curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Teameditor@123"}'
 
@@ -132,7 +132,7 @@ If login fails → stop and report error.
 
 ### Step 2 — Loop through each date
 For each entry in the list:
-  curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/order/quick \
+  curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/order/quick \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer TOKEN" \
     -d '{"childUsername":"STUDENT_USERNAME","senderPhone":"SENDER_PHONE","date":"YYYY-MM-DD","session":"SESSION","dishes":[...]}'
@@ -244,4 +244,4 @@ See TOOLS.md — BSC section.
 Login: admin / Teameditor@123 (ADMIN role — can order for any student)
 
 ## Quick Test Page
-http://34.158.47.112/schoolcatering/tools/quick-order
+https://schoolcatering.gaiada1.online/tools/quick-order

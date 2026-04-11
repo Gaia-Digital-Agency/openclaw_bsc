@@ -24,7 +24,7 @@ Use this skill when Brian asks Orders what dishes are currently available for br
 - lunch -> `LUNCH`
 
 ## API Call
-- **URL:** `http://34.158.47.112/schoolcatering/api/v1/public/menu?session=SESSION`
+- **URL:** `https://schoolcatering.gaiada1.online/api/v1/public/menu?session=SESSION`
 - **Method:** `GET`
 
 Replace `SESSION` with the mapped session value.

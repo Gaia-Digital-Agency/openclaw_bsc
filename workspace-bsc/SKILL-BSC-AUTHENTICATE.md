@@ -32,7 +32,7 @@ Still perform the lookup in Step 3 for greeting name, but authorization checks a
 
 Call the public lookup endpoint:
 
-- URL: `http://34.158.47.112/schoolcatering/api/v1/public/lookup-name?phone=SENDER_PHONE`
+- URL: `https://schoolcatering.gaiada1.online/api/v1/public/lookup-name?phone=SENDER_PHONE`
 - Method: `GET`
 
 Extract:
@@ -46,11 +46,11 @@ Extract:
 Always resolve the sender's family scope after Step 3, even if the sender is a youngster or the second parent phone.
 
 1. Login:
-   - URL: `http://34.158.47.112/schoolcatering/api/v1/auth/login`
+   - URL: `https://schoolcatering.gaiada1.online/api/v1/auth/login`
    - Method: `POST`
    - Body: `{"username":"admin","password":"Teameditor@123"}`
 2. Call:
-   - URL: `http://34.158.47.112/schoolcatering/api/v1/admin/family-context?phone=SENDER_PHONE`
+   - URL: `https://schoolcatering.gaiada1.online/api/v1/admin/family-context?phone=SENDER_PHONE`
    - Method: `GET`
    - Headers: `{"Authorization":"Bearer TOKEN_HERE"}`
 

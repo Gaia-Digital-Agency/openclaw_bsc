@@ -2,8 +2,8 @@
 
 ## BSC — Blossom School Catering
 
-**API Base:** `http://34.158.47.112/schoolcatering/api/v1`
-**Site:** `http://34.158.47.112/schoolcatering/`
+**API Base:** `https://schoolcatering.gaiada1.online/api/v1`
+**Site:** `https://schoolcatering.gaiada1.online/`
 **Current branch standard:** `main`
 
 ### Agent Account

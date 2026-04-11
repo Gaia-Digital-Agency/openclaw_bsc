@@ -51,7 +51,7 @@ Order Deletion aborted due to mo confirmation
 ## Delete Flow
 
 ### Step 3 — Login
-curl -s -X POST http://34.158.47.112/schoolcatering/api/v1/auth/login \
+curl -s -X POST https://schoolcatering.gaiada1.online/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"Teameditor@123"}'
 
@@ -62,7 +62,7 @@ Order deletion failed ✗ — Login failed
 ### Step 4 — Delete the Order
 Use the admin delete-order capability:
 
-curl -s -X DELETE http://34.158.47.112/schoolcatering/api/v1/orders/ORDER_NUMBER \
+curl -s -X DELETE https://schoolcatering.gaiada1.online/api/v1/orders/ORDER_NUMBER \
   -H "Authorization: Bearer TOKEN_HERE"
 
 If you receive HTTP 401, re-login once and retry once.
