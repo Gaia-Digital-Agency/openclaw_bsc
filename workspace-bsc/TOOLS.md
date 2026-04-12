@@ -17,6 +17,7 @@
 - Use `SKILL-BSC-DELETE-ORDER.md` for deleting orders.
 - Use `SKILL-BSC-LOOKUP-PROTOCOL.md` for name, student, or order lookups.
 - Use `SKILL-BSC-ACTIVE-MENU.md` for menu queries.
+- Use `SKILL-BSC-ORDER-RECOMMENDATION.md` for favourite dishes and order recommendations.
 
 ### Key Endpoints
 | Action | Method | Path |

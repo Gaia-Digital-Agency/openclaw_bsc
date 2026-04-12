@@ -30,8 +30,11 @@ If SENDER_ROLE is PARENT:
 
 1. **Login** to get admin token
 2. **Fetch family context:** `GET /admin/family-context?phone=SENDER_PHONE` with admin Bearer token
-3. If the user just asks "who are my kids" → answer from `family.children[]`
-5. If the user asks about grades, usernames, or you need `childUsername` for ordering:
+3. **Scope the response to the student named in the request:**
+   - If the user asks about a **specific child by name** (e.g. "what's Natasha's order", "what grade is Elizabeth in"), match that name against `family.children[]` and respond ONLY about that child. Do NOT list or show information about other siblings.
+   - If the user asks a **general family question** ("who are my kids", "what are my children's grades", "show all orders") → answer from the full `family.children[]`.
+   - If the user asks about "my order" or "my kid" without naming anyone and there are multiple children, ask which child they mean.
+4. If the user asks about grades, usernames, or you need `childUsername` for ordering:
    - Use `family.children[]`
    - This gives: `username`, `first_name`, `last_name`, `school_grade`, `phone_number`
 
@@ -39,6 +42,9 @@ If SENDER_ROLE is PARENT:
 1. Determine date: "today" or "tomorrow" → YYYY-MM-DD
 2. **Login:** POST `/auth/login` with `{"username":"admin","password":"Teameditor@123"}`
 3. **Fetch:** GET `/admin/family-orders?date=DATE&phone=SENDER_PHONE` with Bearer token
+4. **Scope the order response:**
+   - If the user asked about a **specific child** (e.g. "what's Natasha's order today"), show ONLY that child's order from the results. Do NOT include other siblings' orders.
+   - If the user asked generally ("what are my orders today", "show all orders") → show all family orders.
 
 `/admin/family-orders` is the family-scoped order source. Never use `/orders/daily` to determine linked students.
 
