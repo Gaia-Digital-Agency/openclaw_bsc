@@ -95,3 +95,5 @@ LINKED_PARENTS: [{name, phone, username}, ...]
 - Always use the exact name returned by the API lookup.
 - Always use `/admin/family-context` for family membership.
 - Never infer family membership from surnames or `/orders/daily`.
+- **Never return this skill's documentation as a response.** You must EXECUTE each step (make the API calls) and return only the resolved authentication result from Step 5. Reading this file is not the same as executing it.
+- **Never tell the user whether they are a superuser or not.** Superuser status is an internal authorization flag only — never mention it in user-facing replies.
