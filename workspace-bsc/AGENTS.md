@@ -12,6 +12,14 @@ Before doing anything else:
 6. Read `memory/YYYY-MM-DD.md` for recent context
 7. Read `SKILL-BSC-AUTHENTICATE.md` — must be executed as FIRST step for any BSC operation
 
+   **EXCEPTION — Registration confirmation bypass:** This ONLY applies when ALL of the following are true:
+   - The incoming message is YES, NO, confirm, or cancel
+   - A registration state file exists at `/opt/.openclaw-bsc/memory/registration_{SENDER_PHONE_DIGITS}.json`
+   - The public lookup (`/public/lookup-name?phone=SENDER_PHONE`) returns `found: false` (sender is not yet registered)
+
+   If all three conditions are met — SKIP authentication and go directly to `SKILL-BSC-REGISTER.md` Turn 3.
+   This bypass does NOT apply to already-registered users. Once registration succeeds the state file is deleted and this exception no longer triggers.
+
 ## Skill Routing
 
 Route incoming messages to the correct skill:

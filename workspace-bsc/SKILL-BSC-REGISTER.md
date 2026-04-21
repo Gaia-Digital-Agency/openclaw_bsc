@@ -224,7 +224,13 @@ Do NOT save a state file. Do NOT proceed.
 Write state file to `/opt/.openclaw-bsc/memory/registration_{SENDER_PHONE_DIGITS}.json`
 Follow the schema in SKILL-BSC-REGISTER-STATE.md.
 
-### Step 6 — Show confirmation summary
+### Step 6 — Return confirmation summary to Brian
+
+CRITICAL: Do NOT output any "Task Completed" report, "What the main agent should know", or any internal commentary.
+Do NOT call any message send tool.
+Your ENTIRE response must be ONLY the confirmation text below — nothing before it, nothing after it.
+
+Return this exactly (fill in the values):
 
 ```
 ✅ Please review before I register your family:
