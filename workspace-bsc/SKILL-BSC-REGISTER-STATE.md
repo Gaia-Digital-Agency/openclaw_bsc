@@ -63,7 +63,8 @@ After parsing and validating the parent's reply:
 1. Build the full JSON payload as per schema above
 2. Set `created_at` to current UTC ISO timestamp
 3. Set `expires_at` to `created_at + 30 minutes`
-4. Write file to `/opt/.openclaw-bsc/memory/registration_{PHONE}.json`
+4. Write file using bash or python3 to `/opt/.openclaw-bsc/memory/registration_{PHONE_DIGITS}.json`
+   IMPORTANT: Do NOT use MCP filesystem write — that path is not served by it. Use bash `python3 -c` or similar.
 5. Confirm file written before showing confirmation summary to parent
 
 ---
@@ -72,7 +73,10 @@ After parsing and validating the parent's reply:
 
 When parent replies YES to confirmation:
 
-1. Read `/opt/.openclaw-bsc/memory/registration_{SENDER_PHONE}.json`
+IMPORTANT: Use bash to read/check/delete state files. Do NOT use MCP filesystem — `/opt/.openclaw-bsc/memory/` is not served by it.
+
+1. Read with bash: `cat /opt/.openclaw-bsc/memory/registration_{PHONE_DIGITS}.json`
+   (Strip `+` from phone: `+60126012560` → `60126012560`)
 2. Check `expires_at` — if past current time, delete file and reply:
    > ⏰ Your registration session has expired. Please send the registration form again to start over.
 3. If valid, extract `payload` and proceed to API call

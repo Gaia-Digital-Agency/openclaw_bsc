@@ -258,8 +258,18 @@ Reply *YES* to register or *NO* to cancel.
 ## TURN 3A — Parent replies YES: Submit
 
 ### Step 1 — Read state file
-Read `/opt/.openclaw-bsc/memory/registration_{PHONE}.json`
-Check expiry — if expired, delete file and reply:
+
+IMPORTANT: Use bash to read the state file. Do NOT use MCP filesystem — that path is not served by it.
+
+```bash
+cat /opt/.openclaw-bsc/memory/registration_{PHONE_DIGITS}.json
+```
+(Strip `+` from sender phone to get digits, e.g. `+60126012560` → `60126012560`)
+
+If file not found — reply:
+> I don’t have a pending registration for your number. Please send the registration form again.
+
+Check `expires_at` — if expired, delete file with `rm /opt/.openclaw-bsc/memory/registration_{PHONE_DIGITS}.json` and reply:
 > ⏰ Your registration session has expired. Please send the registration form again to start over.
 
 ### Step 2 — Call registration API
