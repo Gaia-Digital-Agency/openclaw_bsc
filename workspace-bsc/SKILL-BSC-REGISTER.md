@@ -1,7 +1,7 @@
 # SKILL-BSC-REGISTER.md — WhatsApp Family Registration
 
 This skill handles the full multi-turn WhatsApp registration flow.
-It covers three distinct turns: (1) intent detected → send invite, (2) template received → validate and confirm, (3) YES received → submit to API.
+It covers three distinct turns: (1) intent detected → send two messages (welcome guide + form), (2) template received → validate and confirm, (3) YES received → submit to API.
 
 ---
 
@@ -12,6 +12,7 @@ Trigger when sender says any of:
 - "daftar", "daftar baru", "mau daftar"
 - "how do I register", "how to register", "how to sign up"
 - "I want to register", "I'd like to register"
+- "can you help me to register", "help me register"
 
 Do NOT trigger if a registration state file already exists and is not expired — handle that case (see Stale File below).
 
@@ -59,20 +60,61 @@ Fuzzy match rules:
 
 ---
 
-## TURN 1 — Intent Detected: Send Invite
+## TURN 1 — Intent Detected: Send Two Messages
 
 When registration intent is detected:
 
-1. Check if sender is already registered:
-   - GET `https://schoolcatering.gaiada1.online/api/v1/public/lookup-name?phone=SENDER_PHONE`
-   - If `found: true` → reply:
-     > You already have an account on Blossom School Catering. You can log in at https://blossomcatering.online/ 😊
+### Step 1 — Check if already registered
 
-2. If `found: false` → send the registration invite message:
+GET `https://schoolcatering.gaiada1.online/api/v1/public/lookup-name?phone=SENDER_PHONE`
+
+If `found: true` → reply (single message):
+```
+You already have an account on Blossom School Catering. 😊
+
+Log in anytime at https://blossomcatering.online/
+
+Need help? Contact your school admin.
+```
+Stop here.
+
+### Step 2 — Send Message 1: Welcome Guide
+
+Send this as the FIRST message, exactly as written:
 
 ```
-Hi! 👋 Welcome to Blossom School Catering.
-To register your family, reply with this filled in.
+🌸 *Welcome to Blossom School Catering!*
+
+Blossom makes school meal ordering simple — register once, order anytime, from the web or WhatsApp.
+
+━━━━━━━━━━━━━━━
+🖥️ *Website*
+• Browse daily menus by session
+• Place & manage orders for your children
+• Upload payment proof & download receipts
+• Full order history with quick reorder
+• Manage your family and linked students
+
+👉 https://blossomcatering.online/
+
+━━━━━━━━━━━━━━━
+💬 *WhatsApp (that's me!)*
+• 🍽️ Place or cancel orders
+• 📋 Check today's meals
+• 📅 Bulk order for the week or month
+• 🔔 Daily morning order reminders
+• 📝 Register a new family account
+
+━━━━━━━━━━━━━━━
+To register your family right here on WhatsApp, fill in the form in my next message and reply. 👇
+```
+
+### Step 3 — Send Message 2: Registration Form
+
+Send this as the SECOND message immediately after Message 1, exactly as written:
+
+```
+Hi! 👋 To register your family, reply with this filled in.
 
 Family or Group name *:
 Parent first name *:
@@ -89,12 +131,13 @@ Grade (G1-G12) *:
 Student Phone (optional):
 Allergies *: none
 
-📋 Guide
+━━━━━━━━━━━━━━━
+📋 *Guide*
 📧 Email — valid address e.g. name@gmail.com
 🔒 Password — min 6 chars, must include uppercase, lowercase, number & symbol e.g. Mango#22
 📱 Phone — include country code e.g. +628123456789
 
-You are also able to register direct on the ordering site with more options and full view of the School Catering web application.
+You can also register on the web with more options:
 https://blossomcatering.online/
 ```
 
@@ -246,7 +289,7 @@ Your family account has been created.
 
 🔒 Use the password you set to log in.
 
-You can manage orders and view the full menu at:
+Manage orders and view the full menu at:
 https://blossomcatering.online/
 
 Enjoy! 🍽️
@@ -297,6 +340,7 @@ Reply *YES* to complete it or *NO* to cancel and start fresh.
 
 ## Rules
 
+- Always send Message 1 (welcome guide) BEFORE Message 2 (registration form) — two separate messages
 - Never echo the password back in any reply or confirmation summary — always show `set ✓`
 - Never expose internal field names, UUIDs, or API paths in replies
 - Never call the registration API without a confirmed YES from the sender
