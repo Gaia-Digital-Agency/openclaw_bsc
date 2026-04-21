@@ -54,6 +54,7 @@
     },
     "codex": {
       "baseUrl": "https://chatgpt.com/backend-api",
+      "apiKey": "codex-app-server",
       "auth": "token",
       "api": "openai-codex-responses",
       "models": [
