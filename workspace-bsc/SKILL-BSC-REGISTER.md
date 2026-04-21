@@ -1,7 +1,7 @@
 # SKILL-BSC-REGISTER.md — WhatsApp Family Registration
 
 This skill handles the full multi-turn WhatsApp registration flow.
-It covers three distinct turns: (1) intent detected → send two messages (welcome guide + form), (2) template received → validate and confirm, (3) YES received → submit to API.
+It covers three distinct turns: (1) intent detected → send one combined message (welcome guide + form), (2) template received → validate and confirm, (3) YES received → submit to API.
 
 ---
 
@@ -60,7 +60,7 @@ Fuzzy match rules:
 
 ---
 
-## TURN 1 — Intent Detected: Send Two Messages
+## TURN 1 — Intent Detected: Send Welcome + Registration Form
 
 When registration intent is detected:
 
@@ -78,9 +78,9 @@ Need help? Contact your school admin.
 ```
 Stop here.
 
-### Step 2 — Send Message 1: Welcome Guide
+### Step 2 — Send ONE combined message: Welcome Guide + Registration Form
 
-Send this as the FIRST message, exactly as written:
+Output this as your reply, exactly as written. This is ONE message:
 
 ```
 🌸 *Welcome to Blossom School Catering!*
@@ -106,15 +106,7 @@ Blossom makes school meal ordering simple — register once, order anytime, from
 • 📝 Register a new family account
 
 ━━━━━━━━━━━━━━━
-To register your family right here on WhatsApp, fill in the form in my next message and reply. 👇
-```
-
-### Step 3 — Send Message 2: Registration Form
-
-Send this as the SECOND message immediately after Message 1, exactly as written:
-
-```
-Hi! 👋 To register your family, reply with this filled in.
+To register your family on WhatsApp, fill in and reply with the form below 👇
 
 Family or Group name *:
 Parent first name *:
@@ -137,11 +129,9 @@ Allergies *: none
 🔒 Password — min 6 chars, must include uppercase, lowercase, number & symbol e.g. Mango#22
 📱 Phone — include country code e.g. +628123456789
 
-You can also register on the web with more options:
+Or register on the web with more options:
 https://blossomcatering.online/
 ```
-
----
 
 ## TURN 2 — Template Received: Parse, Validate, Confirm
 
