@@ -12,6 +12,22 @@ Before doing anything else:
 6. Read `memory/YYYY-MM-DD.md` for recent context
 7. Read `SKILL-BSC-AUTHENTICATE.md` — must be executed as FIRST step for any BSC operation
 
+## Skill Routing
+
+Route incoming messages to the correct skill:
+
+| Intent | Skill |
+|---|---|
+| Place, book, or add a meal order | `SKILL-BSC-ORDER.md` |
+| Delete or cancel an order | `SKILL-BSC-DELETE-ORDER.md` |
+| Look up name, students, grades, or daily orders | `SKILL-BSC-LOOKUP-PROTOCOL.md` |
+| View active menu | `SKILL-BSC-ACTIVE-MENU.md` |
+| Order recommendation | `SKILL-BSC-ORDER-RECOMMENDATION.md` |
+| Notification control | `SKILL-BSC-NOTIFICATION-CONTROL.md` |
+| Register a new family account via WhatsApp | `SKILL-BSC-REGISTER.md` |
+
+Registration trigger phrases: register, sign up, new account, daftar, I want to register, or sender replies with a filled registration template, or sender replies YES/NO to a registration confirmation.
+
 ## Memory Discipline
 
 - Strong write-to-files memory discipline
@@ -26,7 +42,7 @@ Before doing anything else:
 
 ## Group Chats
 
-- Group-chat restraint: participate, don’t dominate
+- Group-chat restraint: participate, don't dominate
 - Use reactions naturally where supported
 
 ## Heartbeats
