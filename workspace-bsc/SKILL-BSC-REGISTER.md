@@ -78,9 +78,13 @@ Need help? Contact your school admin.
 ```
 Stop here.
 
-### Step 2 — Send ONE combined message: Welcome Guide + Registration Form
+### Step 2 — Return the combined message to Brian
 
-Output this as your reply, exactly as written. This is ONE message:
+CRITICAL: Do NOT call any message send tool (e.g. message_send, whatsapp_send, or any send action).
+Your text output is returned to Brian who relays it as the WhatsApp message.
+Just return the following text — nothing else, no commentary, no report header.
+
+Return this exactly:
 
 ```
 🌸 *Welcome to Blossom School Catering!*
