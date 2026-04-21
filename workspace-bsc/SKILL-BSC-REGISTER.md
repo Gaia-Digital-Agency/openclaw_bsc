@@ -302,6 +302,12 @@ Your family account has been created.
 Manage orders and view the full menu at:
 https://blossomcatering.online/
 
+Or you can proceed by asking me here some question.
+
+* What’s on the menu today
+* Do I have any orders tomorrow
+* Can I make an order for tomorrow
+
 Enjoy! 🍽️
 ```
 
