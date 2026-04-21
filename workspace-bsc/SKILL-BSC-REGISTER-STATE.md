@@ -48,7 +48,7 @@ Example: sender `+628123456789` → `registration_628123456789.json`
 
 ### Field notes
 - `step` — always `"awaiting_confirmation"` while waiting for YES/NO
-- `expires_at` — set to 30 minutes after `created_at`
+- `expires_at` — set to 15 minutes after `created_at`
 - `password` — store the actual password value. Never echo it back in replies. Use `"set ✓"` placeholder only in user-facing summary.
 - `youngsterPhone` — if blank or omitted by parent, do not store; API will fall back to parentMobileNumber automatically
 - `youngsterGender` — always stored as `"MALE"` or `"FEMALE"` (normalised from M/F)
@@ -62,7 +62,7 @@ After parsing and validating the parent's reply:
 
 1. Build the full JSON payload as per schema above
 2. Set `created_at` to current UTC ISO timestamp
-3. Set `expires_at` to `created_at + 30 minutes`
+3. Set `expires_at` to `created_at + 15 minutes`
 4. Write file using bash or python3 to `/opt/.openclaw-bsc/memory/registration_{PHONE_DIGITS}.json`
    IMPORTANT: Do NOT use MCP filesystem write — that path is not served by it. Use bash `python3 -c` or similar.
 5. Confirm file written before showing confirmation summary to parent
