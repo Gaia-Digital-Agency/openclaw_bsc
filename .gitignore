@@ -23,3 +23,9 @@ flows/
 tasks/
 venv/
 workspace_bak/
+
+# Orders agent runtime outputs in workspace-bsc/
+workspace-bsc/analyze_*.js
+workspace-bsc/*_recommendation.txt
+workspace-bsc/*_response.txt
+workspace-bsc/*_response.md
