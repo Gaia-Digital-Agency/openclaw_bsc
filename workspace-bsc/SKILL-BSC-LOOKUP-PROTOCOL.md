@@ -10,6 +10,7 @@ Use this skill for any query about user name, identity, linked students, grades,
 
 ## Trigger Phrases
 - "what's my name", "who am I"
+- "what's my last name", "what's my family name", "what's my surname", "what's my full name"
 - "who are my kids", "what students are under my account"
 - "what grade is X in"
 - "what's my order today", "what's my order tomorrow"
@@ -53,8 +54,44 @@ Use plain text only. Keep it short. Never expose system field names, usernames, 
 Always address the sender as "you/your" — never reference their phone number.
 Use resolved names for family members, never phone numbers.
 
-Example (name):
-Your name is Natasha Syrowatka.
+#### Name-reply rules (identity queries)
+
+Phone number is the primary identifier. The sender is resolved from `SENDER_PHONE` during authentication — replies never echo the phone back. Use the resolved names only.
+
+Resolve the sender's own `first_name` / `last_name` from the authentication result:
+- Parent sender: `SENDER_NAME` + `LINKED_PARENTS[matching entry]`; primary parent's `last_name` is the family last name.
+- Youngster sender: the sender's own row from `family.children[]` (match by `phone_number` == `SENDER_PHONE`). Primary parent's `last_name` comes from `LINKED_PARENTS[0]` in the family context.
+
+Name queries:
+
+- **First name only** — when the user asks `"what's my name"`, `"who am I"`, or any unspecified name question:
+  reply with first name only.
+  Example: `Your name is Natasha.`
+
+- **Last name** — when the user asks `"what's my last name"`, `"family name"`, `"surname"`:
+  - Youngster sender: compare the student's own `last_name` against the primary parent's `last_name`.
+    - Equal (no override keyed at registration) → `Your last name is Syrowatka.` (frame as the family last name)
+    - Different (student last name was overridden at registration) → `Your last name is Smith.` (the student's own override)
+  - Parent sender: reply with the parent's own `last_name` directly — that is the family last name.
+  Never show both parent and student last name together in a last-name reply.
+
+- **Full name** — when the user explicitly asks `"what's my full name"`:
+  reply with `first_name` + effective `last_name` (student override when present, otherwise parent last name).
+  Example: `Your full name is Natasha Smith.`
+
+#### Examples
+
+Example (name, first-name only):
+Your name is Natasha.
+
+Example (last name, student last name matches parent):
+Your last name is Syrowatka.
+
+Example (last name, student keyed a different last name at registration):
+Your last name is Smith.
+
+Example (full name, with override):
+Your full name is Natasha Smith.
 
 Example (kids):
 Your students are:

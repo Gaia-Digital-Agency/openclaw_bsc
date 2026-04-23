@@ -125,7 +125,7 @@ Gender (M/F) *:
 Birthday (DD/MM/YYYY) *:
 School [Bali Island School / Sanur Independent School] *:
 Grade (PS, PR, Pre K, G1-G12) *:
-Student Phone (optional):
+Student Phone (optional — needed if the student will chat with Brian directly; blank = student uses parent's phone):
 Allergies *: none
 
 ━━━━━━━━━━━━━━━
@@ -373,7 +373,7 @@ Reply *YES* to complete it or *NO* to cancel and start fresh.
 - State files are temporary — always delete after use (success, cancel, or expiry)
 - `registrantType` is always `PARENT` for WhatsApp registrations
 - Parent phone defaults to SENDER_PHONE if not provided in the template
-- Student phone defaults to parent phone server-side if omitted — do not add it to the payload if blank
+- Student phone defaults to parent phone server-side if omitted — do not add it to the payload if blank. A student needs their own distinct phone to authenticate with Brian independently; without it, messages from the parent's phone resolve to the parent.
 - `youngsterLastName` is optional — omit from the payload entirely when blank so the API falls back to `parentLastName`; include it verbatim when the parent supplied a per-student override
 - Accept both `Parent Last Name` (current UI label) and `Family or Group name` (legacy label) as the `parentLastName` field in the inbound template
 - Supported grade values are `PS`, `PR`, `Pre K`, `G1`–`G12`; `PS` and `PR` are preschool stages and are not auto-promoted year over year server-side

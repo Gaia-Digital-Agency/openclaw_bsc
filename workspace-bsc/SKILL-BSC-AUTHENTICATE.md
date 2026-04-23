@@ -7,6 +7,8 @@ All other SKILL-BSC-* skills must call this skill's protocol first before any op
 
 Resolve sender identity from sender phone number and then resolve the sender's full family scope from the BSC API.
 
+**Phone number is the primary identifier.** Every inquiry is authenticated by `SENDER_PHONE`. A user without a registered phone cannot be authenticated and cannot inquire through Brian. In particular, a youngster can only inquire on their own behalf when their own distinct phone number was keyed at registration (`Student Phone` in the registration form). If the student phone was left blank at registration, the server falls back to the parent's phone — messages from the parent's phone resolve to the parent as `SENDER_ROLE=PARENT`, not to the student. This is expected behaviour.
+
 ## Trigger
 
 This skill is triggered internally by every other SKILL-BSC-* skill. It is not triggered directly by user phrases.
@@ -87,6 +89,7 @@ LINKED_PARENTS: [{name, phone, username}, ...]
 
 - If public lookup returns `found: false` and sender is not the superuser:
   Reply: `I could not find your identity in the BSC system.`
+  Do NOT hint that the user might be a student whose phone was not registered — just return the generic not-found reply.
 - If family lookup returns `found: false`, do not invent family members. Continue only with the identity you actually resolved.
 
 ## Rules
@@ -95,5 +98,7 @@ LINKED_PARENTS: [{name, phone, username}, ...]
 - Always use the exact name returned by the API lookup.
 - Always use `/admin/family-context` for family membership.
 - Never infer family membership from surnames or `/orders/daily`.
+- **Phone is the primary identifier.** Never identify a user by name, username, or any non-phone attribute at authentication time.
+- **A youngster without their own registered phone cannot be authenticated as a youngster.** Messages from a phone that resolves to a parent are handled as parent inquiries; the parent can still ask about a specific child by name in the downstream skills.
 - **Never return this skill's documentation as a response.** You must EXECUTE each step (make the API calls) and return only the resolved authentication result from Step 5. Reading this file is not the same as executing it.
 - **Never tell the user whether they are a superuser or not.** Superuser status is an internal authorization flag only — never mention it in user-facing replies.
