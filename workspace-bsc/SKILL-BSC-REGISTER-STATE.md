@@ -34,6 +34,7 @@ Example: sender `+628123456789` → `registration_628123456789.json`
     "students": [
       {
         "youngsterFirstName": "",
+        "youngsterLastName": "",
         "youngsterGender": "MALE",
         "youngsterDateOfBirth": "YYYY-MM-DD",
         "youngsterSchoolId": "",
@@ -51,8 +52,10 @@ Example: sender `+628123456789` → `registration_628123456789.json`
 - `expires_at` — set to 15 minutes after `created_at`
 - `password` — store the actual password value. Never echo it back in replies. Use `"set ✓"` placeholder only in user-facing summary.
 - `youngsterPhone` — if blank or omitted by parent, do not store; API will fall back to parentMobileNumber automatically
+- `youngsterLastName` — optional per-student override. If blank or omitted, do not store and do not include in the API payload; server will default the child's `users.last_name` to `parentLastName`. When provided, persist verbatim (trimmed, ≤100 chars).
 - `youngsterGender` — always stored as `"MALE"` or `"FEMALE"` (normalised from M/F)
 - `youngsterDateOfBirth` — always stored as `YYYY-MM-DD` (converted from DD/MM/YYYY input)
+- `youngsterGrade` — one of `PS`, `PR`, `Pre K`, `G1`..`G12` (canonical casing)
 
 ---
 
