@@ -1,0 +1,132 @@
+#!/bin/bash
+# brian — single toggle to put Brian into "fully silent" maintenance mode and back.
+#
+# OFF (fully silent — gateway running, but Brian does not respond):
+#   - openclaw.json: channels.whatsapp.accounts.main.allowFrom -> ["+99999999999"]
+#                    channels.whatsapp.accounts.main.groupPolicy -> "disabled"
+#   - workspace-bsc/daily_notification_control.json: dailyOrderNotifications -> "PAUSED"
+#
+# ON: restores the exact values that were live before "off" (snapshot pattern).
+# Pairing/credentials are NEVER touched — toggle does not require WhatsApp re-pair.
+#
+# Usage (run as azlan):
+#   brian off       # save current state, apply silent settings, restart if running
+#   brian on        # restore from snapshot, restart if running
+#   brian status    # show current state
+set -e
+
+CONFIG=/opt/.openclaw-bsc/openclaw.json
+NOTIFY=/opt/.openclaw-bsc/workspace-bsc/daily_notification_control.json
+STATE=/opt/.openclaw-bsc/.brian-toggle-saved.json
+SERVICE=openclaw-bsc-gateway
+
+OFF_ALLOWFROM='["+99999999999"]'
+OFF_GROUPPOLICY='"disabled"'
+OFF_NOTIF=PAUSED
+
+[[ "$(id -un)" == "azlan" ]] || { echo "Run as user azlan (not root, not via sudo)." >&2; exit 1; }
+command -v jq >/dev/null || { echo "jq required" >&2; exit 1; }
+
+iso_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+restart_if_running() {
+    if systemctl --user is-active --quiet "$SERVICE"; then
+        echo "  restarting gateway..."
+        systemctl --user restart "$SERVICE"
+        echo "  gateway restarted"
+    else
+        echo "  gateway not running — config will apply on next start"
+    fi
+}
+
+cmd_off() {
+    if [[ -f "$STATE" ]]; then
+        echo "Brian is already OFF (saved state at $STATE)"
+        exit 0
+    fi
+    cur_allowfrom=$(jq -c ".channels.whatsapp.accounts.main.allowFrom" "$CONFIG")
+    cur_grouppolicy=$(jq -c ".channels.whatsapp.accounts.main.groupPolicy" "$CONFIG")
+    cur_notif=$(jq -r ".dailyOrderNotifications" "$NOTIFY")
+
+    jq -n \
+        --argjson allowFrom "$cur_allowfrom" \
+        --argjson groupPolicy "$cur_grouppolicy" \
+        --arg dailyOrderNotifications "$cur_notif" \
+        --arg savedAt "$(iso_now)" \
+        "{allowFrom: \$allowFrom, groupPolicy: \$groupPolicy, dailyOrderNotifications: \$dailyOrderNotifications, savedAt: \$savedAt}" \
+        > "$STATE"
+
+    tmp=$(mktemp)
+    jq ".channels.whatsapp.accounts.main.allowFrom = $OFF_ALLOWFROM | .channels.whatsapp.accounts.main.groupPolicy = $OFF_GROUPPOLICY" "$CONFIG" > "$tmp"
+    mv "$tmp" "$CONFIG"
+
+    tmp=$(mktemp)
+    jq --arg now "$(iso_now)" ".dailyOrderNotifications = \"$OFF_NOTIF\" | .updatedAt = \$now | .updatedBy = \"brian-toggle\"" "$NOTIFY" > "$tmp"
+    mv "$tmp" "$NOTIFY"
+
+    echo "Brian: OFF (fully silent)"
+    echo "  allowFrom:               $OFF_ALLOWFROM"
+    echo "  groupPolicy:             $OFF_GROUPPOLICY"
+    echo "  dailyOrderNotifications: \"$OFF_NOTIF\""
+    echo "  snapshot saved to:       $STATE"
+    restart_if_running
+}
+
+cmd_on() {
+    if [[ ! -f "$STATE" ]]; then
+        echo "Brian is already ON (no saved state)"
+        exit 0
+    fi
+    sav_allowfrom=$(jq -c ".allowFrom" "$STATE")
+    sav_grouppolicy=$(jq -c ".groupPolicy" "$STATE")
+    sav_notif=$(jq -r ".dailyOrderNotifications" "$STATE")
+
+    tmp=$(mktemp)
+    jq ".channels.whatsapp.accounts.main.allowFrom = $sav_allowfrom | .channels.whatsapp.accounts.main.groupPolicy = $sav_grouppolicy" "$CONFIG" > "$tmp"
+    mv "$tmp" "$CONFIG"
+
+    tmp=$(mktemp)
+    jq --arg now "$(iso_now)" --arg notif "$sav_notif" ".dailyOrderNotifications = \$notif | .updatedAt = \$now | .updatedBy = \"brian-toggle\"" "$NOTIFY" > "$tmp"
+    mv "$tmp" "$NOTIFY"
+
+    rm -f "$STATE"
+
+    echo "Brian: ON (restored from snapshot)"
+    echo "  allowFrom:               $sav_allowfrom"
+    echo "  groupPolicy:             $sav_grouppolicy"
+    echo "  dailyOrderNotifications: \"$sav_notif\""
+    restart_if_running
+}
+
+cmd_status() {
+    cur_allowfrom=$(jq -c ".channels.whatsapp.accounts.main.allowFrom" "$CONFIG")
+    cur_grouppolicy=$(jq -c ".channels.whatsapp.accounts.main.groupPolicy" "$CONFIG")
+    cur_notif=$(jq -r ".dailyOrderNotifications" "$NOTIFY")
+
+    if [[ -f "$STATE" ]]; then
+        echo "Brian: OFF (snapshot present)"
+    else
+        echo "Brian: ON"
+    fi
+    echo "  allowFrom:               $cur_allowfrom"
+    echo "  groupPolicy:             $cur_grouppolicy"
+    echo "  dailyOrderNotifications: \"$cur_notif\""
+
+    if systemctl --user is-active --quiet "$SERVICE"; then
+        echo "  gateway service:         running"
+    else
+        echo "  gateway service:         stopped"
+    fi
+    if systemctl --user is-active --quiet "${SERVICE}-restart.timer"; then
+        echo "  auto-restart timer:      active"
+    else
+        echo "  auto-restart timer:      inactive"
+    fi
+}
+
+case "${1:-status}" in
+    off) cmd_off ;;
+    on)  cmd_on ;;
+    status) cmd_status ;;
+    *) echo "Usage: brian {off|on|status}" >&2; exit 1 ;;
+esac

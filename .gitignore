@@ -29,3 +29,6 @@ workspace-bsc/analyze_*.js
 workspace-bsc/*_recommendation.txt
 workspace-bsc/*_response.txt
 workspace-bsc/*_response.md
+
+# Brian toggle runtime snapshot
+.brian-toggle-saved.json
