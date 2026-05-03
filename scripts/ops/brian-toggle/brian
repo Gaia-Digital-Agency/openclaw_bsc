@@ -2,7 +2,8 @@
 # brian — single toggle to put Brian into "fully silent" maintenance mode and back.
 #
 # OFF (fully silent — gateway running, but Brian does not respond):
-#   - openclaw.json: channels.whatsapp.accounts.main.allowFrom -> ["+99999999999"]
+#   - openclaw.json: channels.whatsapp.accounts.main.dmPolicy    -> "disabled"
+#                    channels.whatsapp.accounts.main.allowFrom   -> ["+99999999999"]
 #                    channels.whatsapp.accounts.main.groupPolicy -> "disabled"
 #   - workspace-bsc/daily_notification_control.json: dailyOrderNotifications -> "PAUSED"
 #
@@ -20,6 +21,7 @@ NOTIFY=/opt/.openclaw-bsc/workspace-bsc/daily_notification_control.json
 STATE=/opt/.openclaw-bsc/.brian-toggle-saved.json
 SERVICE=openclaw-bsc-gateway
 
+OFF_DMPOLICY='"disabled"'
 OFF_ALLOWFROM='["+99999999999"]'
 OFF_GROUPPOLICY='"disabled"'
 OFF_NOTIF=PAUSED
@@ -44,20 +46,25 @@ cmd_off() {
         echo "Brian is already OFF (saved state at $STATE)"
         exit 0
     fi
+    cur_dmpolicy=$(jq -c ".channels.whatsapp.accounts.main.dmPolicy" "$CONFIG")
     cur_allowfrom=$(jq -c ".channels.whatsapp.accounts.main.allowFrom" "$CONFIG")
     cur_grouppolicy=$(jq -c ".channels.whatsapp.accounts.main.groupPolicy" "$CONFIG")
     cur_notif=$(jq -r ".dailyOrderNotifications" "$NOTIFY")
 
     jq -n \
+        --argjson dmPolicy "$cur_dmpolicy" \
         --argjson allowFrom "$cur_allowfrom" \
         --argjson groupPolicy "$cur_grouppolicy" \
         --arg dailyOrderNotifications "$cur_notif" \
         --arg savedAt "$(iso_now)" \
-        "{allowFrom: \$allowFrom, groupPolicy: \$groupPolicy, dailyOrderNotifications: \$dailyOrderNotifications, savedAt: \$savedAt}" \
+        '{dmPolicy: $dmPolicy, allowFrom: $allowFrom, groupPolicy: $groupPolicy, dailyOrderNotifications: $dailyOrderNotifications, savedAt: $savedAt}' \
         > "$STATE"
 
     tmp=$(mktemp)
-    jq ".channels.whatsapp.accounts.main.allowFrom = $OFF_ALLOWFROM | .channels.whatsapp.accounts.main.groupPolicy = $OFF_GROUPPOLICY" "$CONFIG" > "$tmp"
+    jq ".channels.whatsapp.accounts.main.dmPolicy    = $OFF_DMPOLICY    |
+        .channels.whatsapp.accounts.main.allowFrom   = $OFF_ALLOWFROM   |
+        .channels.whatsapp.accounts.main.groupPolicy = $OFF_GROUPPOLICY" \
+        "$CONFIG" > "$tmp"
     mv "$tmp" "$CONFIG"
 
     tmp=$(mktemp)
@@ -65,6 +72,7 @@ cmd_off() {
     mv "$tmp" "$NOTIFY"
 
     echo "Brian: OFF (fully silent)"
+    echo "  dmPolicy:                $OFF_DMPOLICY"
     echo "  allowFrom:               $OFF_ALLOWFROM"
     echo "  groupPolicy:             $OFF_GROUPPOLICY"
     echo "  dailyOrderNotifications: \"$OFF_NOTIF\""
@@ -77,12 +85,16 @@ cmd_on() {
         echo "Brian is already ON (no saved state)"
         exit 0
     fi
+    sav_dmpolicy=$(jq -c ".dmPolicy // \"open\"" "$STATE")
     sav_allowfrom=$(jq -c ".allowFrom" "$STATE")
     sav_grouppolicy=$(jq -c ".groupPolicy" "$STATE")
     sav_notif=$(jq -r ".dailyOrderNotifications" "$STATE")
 
     tmp=$(mktemp)
-    jq ".channels.whatsapp.accounts.main.allowFrom = $sav_allowfrom | .channels.whatsapp.accounts.main.groupPolicy = $sav_grouppolicy" "$CONFIG" > "$tmp"
+    jq ".channels.whatsapp.accounts.main.dmPolicy    = $sav_dmpolicy    |
+        .channels.whatsapp.accounts.main.allowFrom   = $sav_allowfrom   |
+        .channels.whatsapp.accounts.main.groupPolicy = $sav_grouppolicy" \
+        "$CONFIG" > "$tmp"
     mv "$tmp" "$CONFIG"
 
     tmp=$(mktemp)
@@ -92,6 +104,7 @@ cmd_on() {
     rm -f "$STATE"
 
     echo "Brian: ON (restored from snapshot)"
+    echo "  dmPolicy:                $sav_dmpolicy"
     echo "  allowFrom:               $sav_allowfrom"
     echo "  groupPolicy:             $sav_grouppolicy"
     echo "  dailyOrderNotifications: \"$sav_notif\""
@@ -99,6 +112,7 @@ cmd_on() {
 }
 
 cmd_status() {
+    cur_dmpolicy=$(jq -c ".channels.whatsapp.accounts.main.dmPolicy" "$CONFIG")
     cur_allowfrom=$(jq -c ".channels.whatsapp.accounts.main.allowFrom" "$CONFIG")
     cur_grouppolicy=$(jq -c ".channels.whatsapp.accounts.main.groupPolicy" "$CONFIG")
     cur_notif=$(jq -r ".dailyOrderNotifications" "$NOTIFY")
@@ -108,6 +122,7 @@ cmd_status() {
     else
         echo "Brian: ON"
     fi
+    echo "  dmPolicy:                $cur_dmpolicy"
     echo "  allowFrom:               $cur_allowfrom"
     echo "  groupPolicy:             $cur_grouppolicy"
     echo "  dailyOrderNotifications: \"$cur_notif\""

@@ -100,10 +100,11 @@ brian status    # show current state
 
 Run as user `azlan` (no sudo). Each toggle restarts the gateway when running (~25 s); when the gateway is stopped, the toggle just edits the config and the next start picks it up.
 
-When OFF, three knobs change atomically:
+When OFF, four knobs change atomically:
 
 | File | Field | ON | OFF |
 |---|---|---|---|
+| `openclaw.json` | `channels.whatsapp.accounts.main.dmPolicy` | `"open"` | `"disabled"` |
 | `openclaw.json` | `channels.whatsapp.accounts.main.allowFrom` | `["*"]` | `["+99999999999"]` |
 | `openclaw.json` | `channels.whatsapp.accounts.main.groupPolicy` | `"open"` | `"disabled"` |
 | `workspace-bsc/daily_notification_control.json` | `dailyOrderNotifications` | `"ACTIVE"` | `"PAUSED"` |
@@ -111,7 +112,7 @@ When OFF, three knobs change atomically:
 What this achieves while OFF:
 - Gateway service runs normally, port 18789 listening, control UI usable.
 - Brian's WhatsApp account stays online (provider connected, paired).
-- Direct messages to Brian's number — received but filtered before agent processing, so no reply.
+- Direct messages to Brian's number — refused at the channel layer (`dmPolicy: disabled`); the agent never runs and nothing is sent. (`allowFrom` alone is not sufficient — with `dmPolicy: open`, `allowFrom` is advisory only and Brian's outbound reply still goes out.)
 - Group chats containing Brian — ignored (`groupPolicy: disabled`).
 - Daily order-notification job — paused (no scheduled outbound).
 - Auto-restart timer continues to fire daily at 03:00 UTC; the OFF state survives the restart.
