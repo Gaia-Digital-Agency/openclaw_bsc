@@ -70,6 +70,25 @@ git pull --ff-only origin main
 
 ## Operational Toggles
 
+### Quick reference
+| | |
+|---|---|
+| **Host** | `gda-ai01` |
+| **Run as** | user `azlan` (no sudo) |
+
+```bash
+brian off       # fully silent (DMs filtered, groups disabled, notifications paused)
+brian on        # restore from snapshot
+brian status    # show current state
+```
+
+One-liner from a workstation:
+```bash
+ssh gda-ai01 "brian on"
+```
+
+Pairing is preserved across toggle cycles — no QR re-scan needed on swap-back.
+
 ### Brian fully-silent maintenance mode
 A single toggle that silences Brian without stopping the gateway, without touching WhatsApp credentials (no re-pair on reactivation), and without losing any in-flight state.
 
